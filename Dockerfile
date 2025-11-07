@@ -17,7 +17,7 @@ COPY . .
 FROM node:16-alpine
 
 # Instalar MySQL client y otras dependencias necesarias
-RUN apk add --no-cache mysql-client curl
+RUN apk add --no-cache mysql-client curl bash
 
 # Crear usuario no root para seguridad
 RUN addgroup -S nodeapp && \
@@ -35,6 +35,22 @@ COPY --from=builder --chown=nodeapp:nodeapp /app/server.js ./
 
 # Copiar archivo .env si existe
 COPY --chown=nodeapp:nodeapp .env* ./
+
+# Crear script de entrada
+RUN printf '#!/bin/bash\n\
+echo "🔄 Verificando conexión a MySQL..."\n\
+until mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; do\n\
+    echo "⏳ Esperando a MySQL..."\n\
+    sleep 2\n\
+done\n\
+echo "✅ MySQL conectado exitosamente"\n\
+\n\
+echo "🔄 Ejecutando migraciones de la base de datos..."\n\
+node scripts/setup-database.js\n\
+\n\
+echo "🚀 Iniciando BossBudget API..."\n\
+exec npm start\n' > /app/entrypoint.sh && \
+chmod +x /app/entrypoint.sh
 
 # Crear script de inicio
 RUN echo '#!/bin/sh\n\
