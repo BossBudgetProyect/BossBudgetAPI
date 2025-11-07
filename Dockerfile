@@ -36,6 +36,11 @@ COPY --from=builder --chown=nodeapp:nodeapp /app/server.js ./
 # Copiar archivo .env si existe
 COPY --chown=nodeapp:nodeapp .env* ./
 
+# Crear directorio uploads y asignar permisos
+RUN mkdir -p /app/uploads && \
+    chown -R nodeapp:nodeapp /app/uploads && \
+    chmod 755 /app/uploads
+
 # Copiar y configurar script de entrada
 COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
