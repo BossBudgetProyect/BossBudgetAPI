@@ -1,0 +1,12 @@
+{
+  "correo": "test@test.com",
+  "nombres": "Test",
+  "apellidos": "User",
+  "contraseña": "12345678",
+  "profesion": "Test",
+  "fechaDeNacimiento": "1990-01-01",
+  "expectativas": "Test",
+  "nombreUsuario": "testuser",
+  "foto": "test.jpg",
+  "rol": "userN"
+}

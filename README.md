@@ -50,17 +50,7 @@ cd BossBudgetAPI
 npm install
 ```
 
-3. Crear archivo .env:
-```env
-PORT=5000
-NODE_ENV=development
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=password
-DB_NAME=bossbudget
-JWT_SECRET=your_jwt_secret
-FRONTEND_URL=http://localhost:3000
-```
+
 
 ## ⚡ Configuración
 

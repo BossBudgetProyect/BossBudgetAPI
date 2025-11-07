@@ -2,23 +2,35 @@
 
 ### Autenticación
 ```bash
-# Login
+# Registro (Todos los campos requeridos)
+curl -X POST http://localhost:5000/api/auth/registrar" \
+-H "Content-Type: application/json" \
+-d '{
+    "username": "juanperez",
+    "nom": "Juan Carlos",
+    "apell": "Pérez González",
+    "pass": "12345678",
+    "email": "usuario@ejemplo.com",
+    "prof": "Desarrollador",
+    "nacimiento": "1990-01-01",
+    "expec": "Mejorar mis finanzas personales"
+}'
+
+https://psychic-space-engine-x5xwwr44qpxrhwr9-5000.app.github.dev/
+curl -X POST https://psychic-space-engine-x5xwwr44qpxrhwr9-5000.app.github.dev/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "usuario@ejemplo.com",
+    "pass": "12345678"
+  }'
+
+# Obtener Token (Login)
 curl -X POST http://localhost:5000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "usuario@ejemplo.com", "password": "12345678"}'
-
-# Registro
-curl -X POST http://localhost:5000/api/auth/registrar \
-  -H "Content-Type: application/json" \
-  -d '{"nombre": "Usuario", "email": "usuario@ejemplo.com", "password": "12345678"}'
-
-# Obtener perfil (requiere token)
-curl -X GET http://localhost:5000/api/auth/perfil \
-  -H "Authorization: Bearer <token>"
-
-# Logout (requiere token)
-curl -X POST http://localhost:5000/api/auth/logout \
-  -H "Authorization: Bearer <token>"
+  -d '{
+    "Correo": "usuario@ejemplo.com",
+    "Contraseña": "12345678"
+  }'
 ```
 
 ### Presupuestos
@@ -117,45 +129,41 @@ curl -X POST http://localhost:5000/api/password/reset-password \
 
 ### Autenticación
 ```javascript
-// Login
-await fetch('http://localhost:5000/api/auth/login', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    email: 'usuario@ejemplo.com',
-    password: '12345678'
-  })
-});
-
-// Registro
+// Registro con todos los campos
 await fetch('http://localhost:5000/api/auth/registrar', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    nombre: 'Usuario',
-    email: 'usuario@ejemplo.com',
-    password: '12345678'
+    Correo: 'usuario@ejemplo.com',
+    Nombres: 'Juan Carlos',
+    Apellidos: 'Pérez González',
+    Contraseña: '12345678',
+    Profesion: 'Desarrollador',
+    FechaDeNacimiento: '1990-01-01',
+    Expectativas: 'Mejorar mis finanzas personales',
+    NombreUsuario: 'juanperez',
+    Foto: 'url_foto.jpg',
+    rol: 'userN'
   })
 });
 
-// Obtener perfil
-await fetch('http://localhost:5000/api/auth/perfil', {
-  headers: {
-    'Authorization': `Bearer ${token}`
-  }
-});
-
-// Logout
-await fetch('http://localhost:5000/api/auth/logout', {
+// Obtener Token (Login)
+const response = await fetch('http://localhost:5000/api/auth/login', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${token}`
-  }
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    Correo: 'usuario@ejemplo.com',
+    Contraseña: '12345678'
+  })
 });
+
+const data = await response.json();
+// El token estará en data.token
+const token = data.token;
 ```
 
 ### Presupuestos
@@ -325,9 +333,9 @@ await fetch('http://localhost:5000/api/password/reset-password', {
 });
 ```
 
-**Notas para Frontend:**
-- Reemplaza `${token}` con el JWT almacenado
-- Maneja los errores con try/catch
-- Los ejemplos usan Fetch API, pero puedes usar axios u otras librerías
-- Considera implementar interceptores para manejar tokens
-- Agrega validación de campos antes de enviar
+**Notas importantes:**
+1. Todos los campos son obligatorios según la estructura de la base de datos
+2. El campo `rol` por defecto es "userN"
+3. El campo `Foto` puede ser una URL o base64 de la imagen
+4. La `FechaDeNacimiento` debe estar en formato YYYY-MM-DD
+5. La respuesta del login incluirá el token JWT que deberás guardar para las siguientes peticiones
