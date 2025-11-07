@@ -1,0 +1,333 @@
+## 🛣️ Endpoints con ejemplos curl
+
+### Autenticación
+```bash
+# Login
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@ejemplo.com", "password": "12345678"}'
+
+# Registro
+curl -X POST http://localhost:5000/api/auth/registrar \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Usuario", "email": "usuario@ejemplo.com", "password": "12345678"}'
+
+# Obtener perfil (requiere token)
+curl -X GET http://localhost:5000/api/auth/perfil \
+  -H "Authorization: Bearer <token>"
+
+# Logout (requiere token)
+curl -X POST http://localhost:5000/api/auth/logout \
+  -H "Authorization: Bearer <token>"
+```
+
+### Presupuestos
+```bash
+# Listar presupuestos
+curl -X GET http://localhost:5000/api/presupuestos \
+  -H "Authorization: Bearer <token>"
+
+# Crear presupuesto
+curl -X POST http://localhost:5000/api/presupuestos \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Presupuesto Mensual", "monto": 5000}'
+
+# Obtener presupuesto específico
+curl -X GET http://localhost:5000/api/presupuestos/1 \
+  -H "Authorization: Bearer <token>"
+
+# Actualizar presupuesto
+curl -X PUT http://localhost:5000/api/presupuestos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"nombre": "Presupuesto Actualizado", "monto": 6000}'
+
+# Eliminar presupuesto
+curl -X DELETE http://localhost:5000/api/presupuestos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Ingresos
+```bash
+# Registrar ingreso
+curl -X POST http://localhost:5000/api/ingresos/presupuesto/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"concepto": "Salario", "monto": 3000, "fecha": "2025-11-06"}'
+
+# Listar ingresos de un presupuesto
+curl -X GET http://localhost:5000/api/ingresos/presupuesto/1 \
+  -H "Authorization: Bearer <token>"
+
+# Actualizar ingreso
+curl -X PUT http://localhost:5000/api/ingresos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"concepto": "Bono", "monto": 1000}'
+
+# Eliminar ingreso
+curl -X DELETE http://localhost:5000/api/ingresos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Gastos
+```bash
+# Registrar gasto
+curl -X POST http://localhost:5000/api/gastos/presupuesto/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"concepto": "Supermercado", "monto": 500, "fecha": "2025-11-06"}'
+
+# Listar gastos de un presupuesto
+curl -X GET http://localhost:5000/api/gastos/presupuesto/1 \
+  -H "Authorization: Bearer <token>"
+
+# Actualizar gasto
+curl -X PUT http://localhost:5000/api/gastos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{"concepto": "Restaurante", "monto": 300}'
+
+# Eliminar gasto
+curl -X DELETE http://localhost:5000/api/gastos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Recuperación de Contraseña
+```bash
+# Solicitar recuperación
+curl -X POST http://localhost:5000/api/password/forgot-password \
+  -H "Content-Type: application/json" \
+  -d '{"email": "usuario@ejemplo.com"}'
+
+# Restablecer contraseña
+curl -X POST http://localhost:5000/api/password/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{"token": "token-recuperacion", "password": "nueva-contraseña"}'
+```
+
+**Notas:**
+- Reemplaza `<token>` con el JWT obtenido al hacer login
+- El puerto 5000 es el definido en las variables de entorno
+- Todos los datos en los ejemplos son ficticios
+- Los campos de fecha usan formato YYYY-MM-DD
+
+## 🌐 Endpoints para Frontend (Fetch API)
+
+### Autenticación
+```javascript
+// Login
+await fetch('http://localhost:5000/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'usuario@ejemplo.com',
+    password: '12345678'
+  })
+});
+
+// Registro
+await fetch('http://localhost:5000/api/auth/registrar', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    nombre: 'Usuario',
+    email: 'usuario@ejemplo.com',
+    password: '12345678'
+  })
+});
+
+// Obtener perfil
+await fetch('http://localhost:5000/api/auth/perfil', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// Logout
+await fetch('http://localhost:5000/api/auth/logout', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+```
+
+### Presupuestos
+```javascript
+// Listar presupuestos
+await fetch('http://localhost:5000/api/presupuestos', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// Crear presupuesto
+await fetch('http://localhost:5000/api/presupuestos', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    nombre: 'Presupuesto Mensual',
+    monto: 5000
+  })
+});
+
+// Obtener presupuesto específico
+await fetch('http://localhost:5000/api/presupuestos/1', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// Actualizar presupuesto
+await fetch('http://localhost:5000/api/presupuestos/1', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    nombre: 'Presupuesto Actualizado',
+    monto: 6000
+  })
+});
+
+// Eliminar presupuesto
+await fetch('http://localhost:5000/api/presupuestos/1', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+```
+
+### Ingresos
+```javascript
+// Registrar ingreso
+await fetch('http://localhost:5000/api/ingresos/presupuesto/1', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    concepto: 'Salario',
+    monto: 3000,
+    fecha: '2025-11-06'
+  })
+});
+
+// Listar ingresos
+await fetch('http://localhost:5000/api/ingresos/presupuesto/1', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// Actualizar ingreso
+await fetch('http://localhost:5000/api/ingresos/1', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    concepto: 'Bono',
+    monto: 1000
+  })
+});
+
+// Eliminar ingreso
+await fetch('http://localhost:5000/api/ingresos/1', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+```
+
+### Gastos
+```javascript
+// Registrar gasto
+await fetch('http://localhost:5000/api/gastos/presupuesto/1', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    concepto: 'Supermercado',
+    monto: 500,
+    fecha: '2025-11-06'
+  })
+});
+
+// Listar gastos
+await fetch('http://localhost:5000/api/gastos/presupuesto/1', {
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+// Actualizar gasto
+await fetch('http://localhost:5000/api/gastos/1', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  },
+  body: JSON.stringify({
+    concepto: 'Restaurante',
+    monto: 300
+  })
+});
+
+// Eliminar gasto
+await fetch('http://localhost:5000/api/gastos/1', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+```
+
+### Recuperación de Contraseña
+```javascript
+// Solicitar recuperación
+await fetch('http://localhost:5000/api/password/forgot-password', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'usuario@ejemplo.com'
+  })
+});
+
+// Restablecer contraseña
+await fetch('http://localhost:5000/api/password/reset-password', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    token: 'token-recuperacion',
+    password: 'nueva-contraseña'
+  })
+});
+```
+
+**Notas para Frontend:**
+- Reemplaza `${token}` con el JWT almacenado
+- Maneja los errores con try/catch
+- Los ejemplos usan Fetch API, pero puedes usar axios u otras librerías
+- Considera implementar interceptores para manejar tokens
+- Agrega validación de campos antes de enviar
