@@ -36,42 +36,16 @@ COPY --from=builder --chown=nodeapp:nodeapp /app/server.js ./
 # Copiar archivo .env si existe
 COPY --chown=nodeapp:nodeapp .env* ./
 
-# Crear script de entrada
-RUN printf '#!/bin/bash\n\
-echo "🔄 Verificando conexión a MySQL..."\n\
-until mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; do\n\
-    echo "⏳ Esperando a MySQL..."\n\
-    sleep 2\n\
-done\n\
-echo "✅ MySQL conectado exitosamente"\n\
-\n\
-echo "🔄 Ejecutando migraciones de la base de datos..."\n\
-node scripts/setup-database.js\n\
-\n\
-echo "🚀 Iniciando BossBudget API..."\n\
-exec npm start\n' > /app/entrypoint.sh && \
-chmod +x /app/entrypoint.sh
-
-# Crear script de inicio
-RUN echo '#!/bin/sh\n\
-echo "🔄 Verificando conexión a MySQL..."\n\
-while ! mysqladmin ping -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASSWORD" --silent; do\n\
-    echo "⏳ Esperando a MySQL..."\n\
-    sleep 2\n\
-done\n\
-echo "✅ MySQL conectado exitosamente"\n\
-\n\
-if [ "$RUN_MIGRATIONS" = "true" ]; then\n\
-    echo "🔄 Ejecutando migraciones de la base de datos..."\n\
-    node scripts/setup-database.js\n\
-fi\n\
-\n\
-echo "🚀 Iniciando BossBudget API..."\n\
-exec npm start\n\
-' > /app/docker-entrypoint.sh
-
-# Dar permisos de ejecución al script
+# Copiar y configurar script de entrada
+COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
+
+# Copiar y configurar healthcheck
+COPY healthcheck.sh /app/
+RUN chmod +x /app/healthcheck.sh
+
+# Configurar healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["/app/healthcheck.sh"]
 
 # Exponer puerto (se tomará del .env)
 EXPOSE ${PORT:-5000}
