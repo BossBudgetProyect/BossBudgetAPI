@@ -19,7 +19,7 @@ router.post('/login', authController.login);
 router.post('/registrar', upload.single('foto'), authController.registrar);
 
 // ✅ Ruta /verify — validación de token
-router.get('/verify', authMiddleware, async (req, res) => {
+/*router.get('/verify', authMiddleware, async (req, res) => {
   try {
     console.log('🔍 Verificando token → Usuario:', req.user);
 
@@ -41,7 +41,7 @@ router.get('/verify', authMiddleware, async (req, res) => {
       error: 'Token inválido o expirado'
     });
   }
-});
+});*/
 
 // Rutas protegidas
 router.get('/perfil', authMiddleware, authController.obtenerPerfil);
