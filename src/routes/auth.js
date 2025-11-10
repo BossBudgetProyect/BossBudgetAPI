@@ -18,8 +18,9 @@ const upload = multer({ storage });
 router.post('/login', authController.login);
 router.post('/registrar', upload.single('foto'), authController.registrar);
 
+/*
 // ✅ Ruta /verify — validación de token
-/*router.get('/verify', authMiddleware, async (req, res) => {
+router.get('/verify', authMiddleware, async (req, res) => {
   try {
     console.log('🔍 Verificando token → Usuario:', req.user);
 
