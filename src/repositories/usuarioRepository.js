@@ -1,3 +1,4 @@
+// repositories/usuarioRepository.js
 const db = require('../config/database');
 const Usuario = require('../models/Usuario');
 
@@ -88,6 +89,54 @@ class UsuarioRepository {
         );
         
         return result.affectedRows > 0;
+    }
+
+    // NUEVO: Actualizar perfil del usuario (sin contraseña)
+    async updateProfile(correo, datosActualizados) {
+        const { 
+            Nombres, 
+            Apellidos, 
+            Profesion,  
+            Expectativas 
+        } = datosActualizados;
+
+        const [result] = await db.execute(
+            `UPDATE usuario 
+             SET Nombres = ?, Apellidos = ?, Profesion = ?, Expectativas = ?
+             WHERE Correo = ?`,
+            [
+                Nombres,
+                Apellidos,
+                Profesion,
+                Expectativas,
+                correo
+            ]
+        );
+        
+        if (result.affectedRows === 0) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        // Devolver el usuario actualizado
+        return this.findByEmail(correo);
+    }
+
+    // NUEVO: Obtener todos los usuarios (si lo necesitas)
+    async findAll() {
+        const [rows] = await db.execute('SELECT * FROM usuario');
+        
+        return rows.map(usuario => new Usuario(
+            usuario.Correo,
+            usuario.Nombres,
+            usuario.Apellidos,
+            usuario.Contraseña,
+            usuario.Profesion,
+            usuario.FechaDeNacimiento,
+            usuario.Expectativas,
+            usuario.NombreUsuario,
+            usuario.Foto,
+            usuario.rol
+        ));
     }
 }
 

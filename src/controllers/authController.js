@@ -1,10 +1,10 @@
+// controllers/authController.js
 const authService = require('../services/authService');
 const { revokeToken } = require('../middlewares/auth');
 
 class AuthController {
     
-    // Login
-    // En login - hacerlo más robusto
+    // Login (existente)
     async login(req, res) {
         try {
             const { email, pass } = req.body;
@@ -42,7 +42,7 @@ class AuthController {
         }
     }
 
-    // Registro
+    // Registro (existente)
     async registrar(req, res) {
         try {
             const datosUsuario = {
@@ -73,7 +73,7 @@ class AuthController {
         }
     }
 
-    // Obtener perfil (protegido)
+    // Obtener perfil (existente)
     async obtenerPerfil(req, res) {
         try {
             const usuario = await authService.obtenerPerfil(req.user.correo);
@@ -90,8 +90,58 @@ class AuthController {
         }
     }
 
-    // Logout (manejado en el frontend eliminando el token)
-    // ✅ CORREGIDO: Con await y mejor manejo
+    // NUEVO: Actualizar perfil de usuario
+    async actualizarPerfil(req, res) {
+        try {
+            const { nombres, apellidos, profesion, expectativas } = req.body;
+            
+            const usuarioActualizado = await authService.actualizarPerfil(req.user.correo, {
+                nombres,
+                apellidos,
+                profesion,
+                expectativas
+            });
+
+            res.json({
+                success: true,
+                message: 'Perfil actualizado correctamente',
+                data: usuarioActualizado
+            });
+
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    // NUEVO: Cambiar contraseña
+    async cambiarContraseña(req, res) {
+        try {
+            const { contraseñaActual, nuevaContraseña } = req.body;
+            
+            const resultado = await authService.cambiarContraseña(
+                req.user.correo, 
+                contraseñaActual, 
+                nuevaContraseña
+            );
+
+            res.json({
+                success: true,
+                message: 'Contraseña actualizada correctamente',
+                data: resultado
+            });
+
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                error: error.message
+            });
+        }
+    }
+
+    // Logout (existente)
     async logout(req, res) {
         try {
             console.log('🔐 Iniciando logout...');
@@ -136,4 +186,5 @@ class AuthController {
         }
     }
 }
+
 module.exports = new AuthController();
