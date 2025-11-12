@@ -65,7 +65,6 @@ class GastoController {
             const { descripcion, valor } = req.body;
 
             const gastoData = {
-                tipoDeMonto: descripcion,
                 monto: parseFloat(valor),
                 descripcion: descripcion
             };

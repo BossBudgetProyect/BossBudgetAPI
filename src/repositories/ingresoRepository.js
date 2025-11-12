@@ -72,9 +72,8 @@ class IngresoRepository {
     // Actualizar ingreso
     async update(idIngresos, ingresoData) {
         const [result] = await db.execute(
-            'UPDATE ingresos SET TipoDeMonto = ?, Monto = ?, Descripcion = ? WHERE idIngresos = ?',
+            'UPDATE ingresos SET Monto = ?, Descripcion = ? WHERE idIngresos = ?',
             [
-                ingresoData.tipoDeMonto,
                 ingresoData.monto,
                 ingresoData.descripcion,
                 idIngresos
