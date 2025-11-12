@@ -72,9 +72,8 @@ class GastoRepository {
     // Actualizar gasto
     async update(idGastos, gastoData) {
         const [result] = await db.execute(
-            'UPDATE gastos SET TipoDeMonto = ?, Monto = ?, Descripcion = ? WHERE idGastos = ?',
+            'UPDATE gastos SET Monto = ?, Descripcion = ? WHERE idGastos = ?',
             [
-                gastoData.tipoDeMonto,
                 gastoData.monto,
                 gastoData.descripcion,
                 idGastos

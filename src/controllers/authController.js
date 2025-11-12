@@ -29,7 +29,6 @@ class AuthController {
                 success: true,
                 message: 'Login exitoso',
                 data: {
-                    token: resultado.token,
                     usuario: resultado.usuario
                 }
             });

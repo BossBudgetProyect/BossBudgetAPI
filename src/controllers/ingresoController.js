@@ -65,7 +65,6 @@ class IngresoController {
             const { descripcion, valor } = req.body;
 
             const ingresoData = {
-                tipoDeMonto: descripcion,
                 monto: parseFloat(valor),
                 descripcion: descripcion
             };

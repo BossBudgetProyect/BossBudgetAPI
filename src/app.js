@@ -1,3 +1,4 @@
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -41,8 +42,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // 6. Etapa del desarrollo
-if (process.env.NODE_ENV === 'production') {
-    app.set('trust proxy', true); // Confía en todos los proxies en producción
+if (process.env.NODE_ENV === 'development') {
+    app.set('trust proxy', false); // Confía en todos los proxies en producción
 }
 
 // ========== RUTAS ==========

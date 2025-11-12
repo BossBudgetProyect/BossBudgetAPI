@@ -66,12 +66,56 @@ class PresupuestoService {
         };
     }
 
-    // Actualizar presupuesto
+    // Actualizar presupuesto - VERSIÓN CORREGIDA
     async actualizarPresupuesto(idPresupuesto, nombreUsuario, presupuestoData) {
-        const actualizado = await presupuestoRepository.update(idPresupuesto, nombreUsuario, presupuestoData);
-        if (!actualizado) {
-            throw new Error('Error al actualizar el presupuesto');
+        console.log('🔍 DEBUG - Datos recibidos en servicio:', presupuestoData);
+        
+        // 1. Primero verificar que el presupuesto existe y pertenece al usuario
+        const presupuesto = await presupuestoRepository.findByIdAndUser(idPresupuesto, nombreUsuario);
+        if (!presupuesto) {
+            throw new Error('Presupuesto no encontrado o no tienes permiso');
         }
+
+        // 2. Obtener el primer detalle del presupuesto (asumimos que hay uno)
+        const detalles = await detallePresupuestoRepository.findByPresupuesto(idPresupuesto);
+        if (detalles.length === 0) {
+            throw new Error('No se encontró el detalle del presupuesto');
+        }
+
+        const detalle = detalles[0];
+        
+        // 3. Preparar datos para actualizar el DETALLE
+        const datosActualizarDetalle = {};
+        
+        // Solo incluir campos que tienen valores definidos
+        if (presupuestoData.nombre !== undefined && presupuestoData.nombre !== null) {
+            datosActualizarDetalle.nombre = presupuestoData.nombre;
+        }
+        if (presupuestoData.monto !== undefined && presupuestoData.monto !== null) {
+            datosActualizarDetalle.monto = parseFloat(presupuestoData.monto);
+        }
+        if (presupuestoData.fecha_inicio !== undefined && presupuestoData.fecha_inicio !== null) {
+            datosActualizarDetalle.fecha_inicio = presupuestoData.fecha_inicio;
+        }
+        if (presupuestoData.fecha_fin !== undefined && presupuestoData.fecha_fin !== null) {
+            datosActualizarDetalle.fecha_fin = presupuestoData.fecha_fin;
+        }
+        if (presupuestoData.categoria !== undefined && presupuestoData.categoria !== null) {
+            datosActualizarDetalle.categoria = presupuestoData.categoria;
+        }
+
+        console.log('🔍 DEBUG - Actualizando detalle con:', datosActualizarDetalle);
+
+        // 4. Actualizar el detalle usando el repositorio CORRECTO
+        const detalleActualizado = await detallePresupuestoRepository.update(
+            detalle.idDetalle, 
+            datosActualizarDetalle
+        );
+
+        if (!detalleActualizado) {
+            throw new Error('Error al actualizar el detalle del presupuesto');
+        }
+
         return await this.obtenerPresupuestoCompleto(idPresupuesto, nombreUsuario);
     }
 
