@@ -23,28 +23,24 @@ const allowedOrigins = [
   "http://localhost:3000"
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Postman o backend interno
-      if (allowedOrigins.includes(origin)) {
-        console.log("🟢 CORS permitido para:", origin);
-        return callback(null, true);
-      } else {
-        console.warn("🔴 CORS bloqueado para:", origin);
-        return callback(new Error("No permitido por CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  })
-);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // Postman o backend interno
+    if (allowedOrigins.includes(origin)) {
+      console.log("🟢 CORS permitido para:", origin);
+      return callback(null, true);
+    } else {
+      console.warn("🔴 CORS bloqueado para:", origin);
+      return callback(new Error("No permitido por CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+};
 
-app.options('*', cors({
-  origin: allowedOrigins,
-  credentials: true
-}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 // 👇 Reforzamos los headers CORS manualmente para Railway
 app.use((req, res, next) => {
