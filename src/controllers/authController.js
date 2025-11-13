@@ -16,10 +16,10 @@ class AuthController {
             const cookieOptions = {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'none',
-                domain: '.up.railway.app',
+                sameSite: "none",
+                domain: ".up.railway.app", // correcto, aplica a ambos subdominios
                 maxAge: 24 * 60 * 60 * 1000,
-                path: '/'
+                path: "/",
             };
 
             // Establecer cookie

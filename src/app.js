@@ -25,7 +25,7 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true); // Postman o backend interno
+    if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) {
       console.log("🟢 CORS permitido para:", origin);
       return callback(null, true);
@@ -45,6 +45,14 @@ app.use(cors(corsOptions));
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204); // manejar preflight correctamente
+  }
   next();
 });
 
