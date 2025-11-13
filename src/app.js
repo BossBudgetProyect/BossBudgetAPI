@@ -40,7 +40,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // 👇 Reforzamos los headers CORS manualmente para Railway
 app.use((req, res, next) => {
