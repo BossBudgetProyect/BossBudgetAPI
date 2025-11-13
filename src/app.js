@@ -14,14 +14,32 @@ const ingresosRoutes = require('./routes/ingresos');
 const app = express();
 
 // ========== MIDDLEWARES GLOBALES ==========
-
+app.use((req, res, next) => {
+  console.log("🛰️ Origin recibido:", req.headers.origin);
+  next();
+});
 // 1. CORS PRIMERO
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // el front en Railway
+  "http://localhost:3000"   // para desarrollo
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true); // Postman o backend interno
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        console.warn("CORS bloqueado para:", origin);
+        return callback(new Error("No permitido por CORS"));
+      }
+    },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  })
+);
 
 // 2. ✅ COOKIE-PARSER - CRÍTICO para leer cookies
 app.use(cookieParser());
