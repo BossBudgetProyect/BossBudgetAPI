@@ -14,14 +14,13 @@ const ingresosRoutes = require('./routes/ingresos');
 const app = express();
 
 // ========== MIDDLEWARES GLOBALES ==========
-app.use((req, res, next) => {
-  console.log("🛰️ Origin recibido:", req.headers.origin);
-  next();
-});
+
 // 1. CORS PRIMERO
+console.log("✅ FRONTEND_URL permitido:", process.env.FRONTEND_URL);
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // el front en Railway
-  "http://localhost:3000"   // para desarrollo
+  process.env.FRONTEND_URL,
+  "http://localhost:3000"
 ];
 
 app.use(
@@ -29,9 +28,10 @@ app.use(
     origin: function (origin, callback) {
       if (!origin) return callback(null, true); // Postman o backend interno
       if (allowedOrigins.includes(origin)) {
+        console.log("🟢 CORS permitido para:", origin);
         return callback(null, true);
       } else {
-        console.warn("CORS bloqueado para:", origin);
+        console.warn("🔴 CORS bloqueado para:", origin);
         return callback(new Error("No permitido por CORS"));
       }
     },
