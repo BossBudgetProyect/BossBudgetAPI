@@ -41,6 +41,19 @@ app.use(
   })
 );
 
+// 👇 Reforzamos los headers CORS manualmente para Railway
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
+app.use(express.json());
+app.use(cookieParser());
+app.use('/api', rutasApi);
+
+app.options('*', cors());
+
 // 2. ✅ COOKIE-PARSER - CRÍTICO para leer cookies
 app.use(cookieParser());
 
