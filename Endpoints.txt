@@ -1,11 +1,17 @@
 ## 🛣️ Endpoints con ejemplos curl
 
-### Autenticación
+**Base URL:** `https://bossbudgetapi-production.up.railway.app/`
+**Base URL Local (desarrollo):** `http://localhost:3000/`
+
+---
+
+### ✅ AUTENTICACIÓN
+
+#### Registro
 ```bash
-# Registro (Todos los campos requeridos)
-curl -X POST http://localhost:5000/api/auth/registrar" \
--H "Content-Type: application/json" \
--d '{
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/auth/registrar \
+  -H "Content-Type: application/json" \
+  -d '{
     "username": "juanperez",
     "nom": "Juan Carlos",
     "apell": "Pérez González",
@@ -14,169 +20,306 @@ curl -X POST http://localhost:5000/api/auth/registrar" \
     "prof": "Desarrollador",
     "nacimiento": "1990-01-01",
     "expec": "Mejorar mis finanzas personales"
-}'
+  }'
+```
 
-https://psychic-space-engine-x5xwwr44qpxrhwr9-5000.app.github.dev/
-curl -X POST https://psychic-space-engine-x5xwwr44qpxrhwr9-5000.app.github.dev/api/auth/login \
+#### Login (Obtener Token JWT)
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "usuario@ejemplo.com",
     "pass": "12345678"
   }'
 
-# Obtener Token (Login)
-curl -X POST http://localhost:5000/api/auth/login \
+# Respuesta:
+# {
+#   "success": true,
+#   "message": "Login exitoso",
+#   "data": {
+#     "usuario": { "id", "email", "username", ... }
+#   }
+# }
+```
+
+#### Obtener Perfil
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/auth/perfil \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Actualizar Perfil
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/auth/perfil \
+  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "Correo": "usuario@ejemplo.com",
-    "Contraseña": "12345678"
+    "nombres": "Juan",
+    "apellidos": "Pérez",
+    "profesion": "Desarrollador"
   }'
 ```
 
-### Presupuestos
+#### Cambiar Contraseña
 ```bash
-# Listar presupuestos
-curl -X GET http://localhost:5000/api/presupuestos \
-  -H "Authorization: Bearer <token>"
-
-# Crear presupuesto
-curl -X POST http://localhost:5000/api/presupuestos \
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/auth/cambiar-password \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"nombre": "Presupuesto Mensual", "monto": 5000}'
+  -d '{
+    "contraseñaActual": "12345678",
+    "contraseñaNueva": "newpassword123"
+  }'
+```
 
-# Obtener presupuesto específico
-curl -X GET http://localhost:5000/api/presupuestos/1 \
-  -H "Authorization: Bearer <token>"
-
-# Actualizar presupuesto
-curl -X PUT http://localhost:5000/api/presupuestos/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"nombre": "Presupuesto Actualizado", "monto": 6000}'
-
-# Eliminar presupuesto
-curl -X DELETE http://localhost:5000/api/presupuestos/1 \
+#### Logout
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/auth/logout \
   -H "Authorization: Bearer <token>"
 ```
 
-### Ingresos
+---
+
+### 💰 PRESUPUESTOS
+
+#### Crear Presupuesto
 ```bash
-# Registrar ingreso
-curl -X POST http://localhost:5000/api/ingresos/presupuesto/1 \
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/presupuestos \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
-  -d '{"concepto": "Salario", "monto": 3000, "fecha": "2025-11-06"}'
+  -d '{
+    "nombre": "Presupuesto Mensual",
+    "valor": 5000,
+    "fecha_inicio": "2025-11-01",
+    "fecha_fin": "2025-11-30",
+    "categoria": "Vivienda"
+  }'
 
-# Listar ingresos de un presupuesto
-curl -X GET http://localhost:5000/api/ingresos/presupuesto/1 \
-  -H "Authorization: Bearer <token>"
+# Categorías disponibles: Vivienda, Transporte, Alimentación, Entretenimiento, Salud, Educación, Otros
+```
 
-# Actualizar ingreso
-curl -X PUT http://localhost:5000/api/ingresos/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"concepto": "Bono", "monto": 1000}'
-
-# Eliminar ingreso
-curl -X DELETE http://localhost:5000/api/ingresos/1 \
+#### Listar Presupuestos del Usuario
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/presupuestos \
   -H "Authorization: Bearer <token>"
 ```
 
-### Gastos
+#### Obtener Presupuesto Específico
 ```bash
-# Registrar gasto
-curl -X POST http://localhost:5000/api/gastos/presupuesto/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"concepto": "Supermercado", "monto": 500, "fecha": "2025-11-06"}'
-
-# Listar gastos de un presupuesto
-curl -X GET http://localhost:5000/api/gastos/presupuesto/1 \
-  -H "Authorization: Bearer <token>"
-
-# Actualizar gasto
-curl -X PUT http://localhost:5000/api/gastos/1 \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"concepto": "Restaurante", "monto": 300}'
-
-# Eliminar gasto
-curl -X DELETE http://localhost:5000/api/gastos/1 \
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/presupuestos/1 \
   -H "Authorization: Bearer <token>"
 ```
 
-### Recuperación de Contraseña
+#### Actualizar Presupuesto
 ```bash
-# Solicitar recuperación
-curl -X POST http://localhost:5000/api/password/forgot-password \
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/presupuestos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombre": "Presupuesto Actualizado",
+    "valor": 6000,
+    "fecha_inicio": "2025-12-01",
+    "fecha_fin": "2025-12-31",
+    "categoria": "Vivienda"
+  }'
+```
+
+#### Eliminar Presupuesto
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/presupuestos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 📥 INGRESOS
+
+#### Crear Ingreso
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/ingresos/presupuesto/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "Salario",
+    "valor": 3000,
+    "descripcion": "Pago del trabajo",
+    "fecha": "2025-11-06"
+  }'
+
+# Tipos disponibles: Salario, Bono, Freelance, Inversión, Otros
+```
+
+#### Listar Ingresos de un Presupuesto
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/ingresos/presupuesto/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Obtener Ingreso Específico
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/ingresos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Actualizar Ingreso
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/ingresos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "Bono",
+    "valor": 1000,
+    "descripcion": "Bono mensual"
+  }'
+```
+
+#### Obtener Total de Ingresos
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/ingresos/presupuesto/1/total \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Eliminar Ingreso
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/ingresos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 📤 GASTOS
+
+#### Crear Gasto
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/gastos/presupuesto/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "Supermercado",
+    "valor": 500,
+    "descripcion": "Compra semanal",
+    "fecha": "2025-11-06"
+  }'
+
+# Tipos disponibles: Supermercado, Restaurante, Transporte, Ocio, Salud, Educación, Otros
+```
+
+#### Listar Gastos de un Presupuesto
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/gastos/presupuesto/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Obtener Gasto Específico
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/gastos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+#### Actualizar Gasto
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/gastos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "Restaurante",
+    "valor": 300,
+    "descripcion": "Cena"
+  }'
+```
+
+#### Eliminar Gasto
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/gastos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+### 🔑 RECUPERACIÓN DE CONTRASEÑA
+
+#### Solicitar Recuperación
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/password/forgot-password \
   -H "Content-Type: application/json" \
   -d '{"email": "usuario@ejemplo.com"}'
-
-# Restablecer contraseña
-curl -X POST http://localhost:5000/api/password/reset-password \
-  -H "Content-Type: application/json" \
-  -d '{"token": "token-recuperacion", "password": "nueva-contraseña"}'
 ```
 
-**Notas:**
-- Reemplaza `<token>` con el JWT obtenido al hacer login
-- El puerto 5000 es el definido en las variables de entorno
-- Todos los datos en los ejemplos son ficticios
-- Los campos de fecha usan formato YYYY-MM-DD
+#### Restablecer Contraseña
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/password/reset-password \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "token-recuperacion",
+    "password": "nueva-contraseña"
+  }'
+```
+
+---
 
 ## 🌐 Endpoints para Frontend (Fetch API)
 
-### Autenticación
-```javascript
-// Registro con todos los campos
-await fetch('http://localhost:5000/api/auth/registrar', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    Correo: 'usuario@ejemplo.com',
-    Nombres: 'Juan Carlos',
-    Apellidos: 'Pérez González',
-    Contraseña: '12345678',
-    Profesion: 'Desarrollador',
-    FechaDeNacimiento: '1990-01-01',
-    Expectativas: 'Mejorar mis finanzas personales',
-    NombreUsuario: 'juanperez',
-    Foto: 'url_foto.jpg',
-    rol: 'userN'
-  })
-});
+### ✅ AUTENTICACIÓN
 
-// Obtener Token (Login)
-const response = await fetch('http://localhost:5000/api/auth/login', {
+#### Registro
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/auth/registrar', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
-    Correo: 'usuario@ejemplo.com',
-    Contraseña: '12345678'
+    username: 'juanperez',
+    nom: 'Juan Carlos',
+    apell: 'Pérez González',
+    pass: '12345678',
+    email: 'usuario@ejemplo.com',
+    prof: 'Desarrollador',
+    nacimiento: '1990-01-01',
+    expec: 'Mejorar mis finanzas personales'
   })
 });
 
 const data = await response.json();
-// El token estará en data.token
-const token = data.token;
+console.log(data);
 ```
 
-### Presupuestos
+#### Login
 ```javascript
-// Listar presupuestos
-await fetch('http://localhost:5000/api/presupuestos', {
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/auth/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'usuario@ejemplo.com',
+    pass: '12345678'
+  })
+});
+
+const data = await response.json();
+const token = data.data?.usuario?.id; // Guardar para próximas peticiones
+localStorage.setItem('token', data.token); // Guardar token
+```
+
+#### Obtener Perfil
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/auth/perfil', {
+  method: 'GET',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
 
-// Crear presupuesto
-await fetch('http://localhost:5000/api/presupuestos', {
+const data = await response.json();
+```
+
+---
+
+### 💰 PRESUPUESTOS
+
+#### Crear Presupuesto
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -184,19 +327,44 @@ await fetch('http://localhost:5000/api/presupuestos', {
   },
   body: JSON.stringify({
     nombre: 'Presupuesto Mensual',
-    monto: 5000
+    valor: 5000,
+    fecha_inicio: '2025-11-01',
+    fecha_fin: '2025-11-30',
+    categoria: 'Vivienda'
   })
 });
 
-// Obtener presupuesto específico
-await fetch('http://localhost:5000/api/presupuestos/1', {
+const data = await response.json();
+```
+
+#### Listar Presupuestos
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos', {
+  method: 'GET',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
 
-// Actualizar presupuesto
-await fetch('http://localhost:5000/api/presupuestos/1', {
+const data = await response.json();
+console.log(data.data); // Array de presupuestos
+```
+
+#### Obtener Presupuesto Específico
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos/1', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${token}`
+  }
+});
+
+const data = await response.json();
+```
+
+#### Actualizar Presupuesto
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos/1', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
@@ -204,113 +372,167 @@ await fetch('http://localhost:5000/api/presupuestos/1', {
   },
   body: JSON.stringify({
     nombre: 'Presupuesto Actualizado',
-    monto: 6000
+    valor: 6000,
+    fecha_inicio: '2025-12-01',
+    fecha_fin: '2025-12-31',
+    categoria: 'Vivienda'
   })
 });
 
-// Eliminar presupuesto
-await fetch('http://localhost:5000/api/presupuestos/1', {
+const data = await response.json();
+```
+
+#### Eliminar Presupuesto
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/presupuestos/1', {
   method: 'DELETE',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
+
+const data = await response.json();
 ```
 
-### Ingresos
+---
+
+### 📥 INGRESOS
+
+#### Crear Ingreso
 ```javascript
-// Registrar ingreso
-await fetch('http://localhost:5000/api/ingresos/presupuesto/1', {
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/ingresos/presupuesto/1', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
   body: JSON.stringify({
-    concepto: 'Salario',
-    monto: 3000,
+    tipo: 'Salario',
+    valor: 3000,
+    descripcion: 'Pago del trabajo',
     fecha: '2025-11-06'
   })
 });
 
-// Listar ingresos
-await fetch('http://localhost:5000/api/ingresos/presupuesto/1', {
+const data = await response.json();
+```
+
+#### Listar Ingresos
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/ingresos/presupuesto/1', {
+  method: 'GET',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
 
-// Actualizar ingreso
-await fetch('http://localhost:5000/api/ingresos/1', {
+const data = await response.json();
+console.log(data.data); // Array de ingresos
+```
+
+#### Actualizar Ingreso
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/ingresos/1', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
   body: JSON.stringify({
-    concepto: 'Bono',
-    monto: 1000
+    tipo: 'Bono',
+    valor: 1000,
+    descripcion: 'Bono mensual'
   })
 });
 
-// Eliminar ingreso
-await fetch('http://localhost:5000/api/ingresos/1', {
+const data = await response.json();
+```
+
+#### Eliminar Ingreso
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/ingresos/1', {
   method: 'DELETE',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
+
+const data = await response.json();
 ```
 
-### Gastos
+---
+
+### 📤 GASTOS
+
+#### Crear Gasto
 ```javascript
-// Registrar gasto
-await fetch('http://localhost:5000/api/gastos/presupuesto/1', {
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/gastos/presupuesto/1', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
   body: JSON.stringify({
-    concepto: 'Supermercado',
-    monto: 500,
+    tipo: 'Supermercado',
+    valor: 500,
+    descripcion: 'Compra semanal',
     fecha: '2025-11-06'
   })
 });
 
-// Listar gastos
-await fetch('http://localhost:5000/api/gastos/presupuesto/1', {
+const data = await response.json();
+```
+
+#### Listar Gastos
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/gastos/presupuesto/1', {
+  method: 'GET',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
 
-// Actualizar gasto
-await fetch('http://localhost:5000/api/gastos/1', {
+const data = await response.json();
+console.log(data.data); // Array de gastos
+```
+
+#### Actualizar Gasto
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/gastos/1', {
   method: 'PUT',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
   },
   body: JSON.stringify({
-    concepto: 'Restaurante',
-    monto: 300
+    tipo: 'Restaurante',
+    valor: 300,
+    descripcion: 'Cena'
   })
 });
 
-// Eliminar gasto
-await fetch('http://localhost:5000/api/gastos/1', {
+const data = await response.json();
+```
+
+#### Eliminar Gasto
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/gastos/1', {
   method: 'DELETE',
   headers: {
     'Authorization': `Bearer ${token}`
   }
 });
+
+const data = await response.json();
 ```
 
-### Recuperación de Contraseña
+---
+
+### 🔑 RECUPERACIÓN DE CONTRASEÑA
+
+#### Solicitar Recuperación
 ```javascript
-// Solicitar recuperación
-await fetch('http://localhost:5000/api/password/forgot-password', {
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/password/forgot-password', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -320,8 +542,12 @@ await fetch('http://localhost:5000/api/password/forgot-password', {
   })
 });
 
-// Restablecer contraseña
-await fetch('http://localhost:5000/api/password/reset-password', {
+const data = await response.json();
+```
+
+#### Restablecer Contraseña
+```javascript
+const response = await fetch('https://bossbudgetapi-production.up.railway.app/api/password/reset-password', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json'
@@ -331,11 +557,41 @@ await fetch('http://localhost:5000/api/password/reset-password', {
     password: 'nueva-contraseña'
   })
 });
+
+const data = await response.json();
 ```
 
-**Notas importantes:**
-1. Todos los campos son obligatorios según la estructura de la base de datos
-2. El campo `rol` por defecto es "userN"
-3. El campo `Foto` puede ser una URL o base64 de la imagen
-4. La `FechaDeNacimiento` debe estar en formato YYYY-MM-DD
-5. La respuesta del login incluirá el token JWT que deberás guardar para las siguientes peticiones
+---
+
+## 📋 NOTAS IMPORTANTES
+
+✅ **Cambios realizados:**
+- URL actualizada a Railway: `https://bossbudgetapi-production.up.railway.app/`
+- Puerto cambio de 5000 a 3000
+- Parámetros de autenticación corregidos: `email` y `pass` (antes: Correo y Contraseña)
+- Parámetros de presupuestos actualizados: `nombre`, `valor`, `fecha_inicio`, `fecha_fin`, `categoria`
+- Parámetros de ingresos/gastos actualizados: `tipo`, `valor`, `descripcion`, `fecha`
+- Agrupadas todas las categorías disponibles
+
+⚠️ **Requerimientos:**
+- Reemplaza `<token>` con el JWT obtenido al hacer login
+- Todos los campos fecha usan formato `YYYY-MM-DD`
+- El header `Authorization` es obligatorio para rutas protegidas
+- Content-Type debe ser `application/json` para peticiones con body
+
+🔗 **Headers necesarios:**
+```javascript
+{
+  'Content-Type': 'application/json',        // Para peticiones POST/PUT
+  'Authorization': 'Bearer <tu_token>'       // Para rutas protegidas
+}
+```
+
+⏱️ **Tiempos de expiración:**
+- Token JWT: 1 hora
+- Sesión: 24 horas
+
+🌍 **URLs disponibles:**
+- **Producción:** `https://bossbudgetapi-production.up.railway.app/`
+- **Desarrollo Local:** `http://localhost:3000/`
+- **GitHub Codespaces (si aplica):** Reemplazar según la URL asignada
