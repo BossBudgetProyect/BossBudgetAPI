@@ -17,7 +17,6 @@ class AuthController {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'none',
-                domain: '.app.github.dev',
                 maxAge: 24 * 60 * 60 * 1000,
                 path: '/'
             };
