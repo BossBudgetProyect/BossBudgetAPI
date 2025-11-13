@@ -50,7 +50,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use(cookieParser());
-app.use('/api', rutasApi);
 
 app.options('*', cors());
 
