@@ -4,7 +4,19 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
-const DB_TYPE = (process.env.DB_TYPE || 'mysql').toLowerCase();
+function getDbType() {
+    if (process.env.DB_TYPE) {
+        return process.env.DB_TYPE.toLowerCase();
+    }
+
+    if (process.env.DB_HOST || process.env.DB_USER || process.env.DB_PASSWORD || process.env.DB_NAME) {
+        return 'mysql';
+    }
+
+    return 'sqlite';
+}
+
+const DB_TYPE = getDbType();
 const SQLITE_FILE_PATH = path.resolve(process.env.SQLITE_FILE || path.join(__dirname, '..', 'database.sqlite'));
 
 function sqliteExecute(db, sql, params = []) {
