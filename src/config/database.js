@@ -17,7 +17,7 @@ function getDbType() {
 }
 
 const DB_TYPE = getDbType();
-const SQLITE_FILE_PATH = path.resolve(process.env.SQLITE_FILE || path.join(__dirname, '..', 'database.sqlite'));
+const SQLITE_FILE_PATH = path.resolve(process.env.SQLITE_FILE || '/tmp/database.sqlite');
 
 function openSqliteDatabase() {
     const dir = path.dirname(SQLITE_FILE_PATH);
