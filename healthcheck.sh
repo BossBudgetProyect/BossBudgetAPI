@@ -13,11 +13,26 @@ if ! netstat -tln | grep ":${PORT:-5000}" > /dev/null; then
     exit 1
 fi
 
-# Verificar conexión a MySQL
-if ! mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; then
-    echo "❌ No hay conexión con MySQL"
-    exit 1
+# Verificar conexión a MySQL o fallback a SQLite
+if [ "${DB_TYPE:-mysql}" = "sqlite" ]; then
+    SQLITE_FILE="${SQLITE_FILE:-./database.sqlite}"
+    if [ ! -f "$SQLITE_FILE" ]; then
+        echo "❌ No se encontró el archivo de SQLite: $SQLITE_FILE"
+        exit 1
+    fi
+    echo "✅ La aplicación está funcionando correctamente con SQLite"
+    exit 0
 fi
 
-echo "✅ La aplicación está funcionando correctamente"
-exit 0
+if mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; then
+    echo "✅ La aplicación está funcionando correctamente con MySQL"
+    exit 0
+fi
+
+if [ -f "${SQLITE_FILE:-./database.sqlite}" ]; then
+    echo "✅ No hay MySQL pero existe SQLite, la aplicación puede usar SQLite"
+    exit 0
+fi
+
+echo "❌ No hay conexión con MySQL y no existe SQLite"
+exit 1

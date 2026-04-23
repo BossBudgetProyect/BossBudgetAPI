@@ -1,10 +1,260 @@
 const mysql = require('mysql2/promise');
+const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
-async function setupDatabase() {
+const DB_TYPE = (process.env.DB_TYPE || 'mysql').toLowerCase();
+const SQLITE_FILE_PATH = path.resolve(process.env.SQLITE_FILE || path.join(__dirname, '..', 'database.sqlite'));
+
+function sqliteExecute(db, sql, params = []) {
+    return new Promise((resolve, reject) => {
+        const trimmed = String(sql).trim().toUpperCase();
+        const callback = (error, rows) => {
+            if (error) return reject(error);
+            resolve([rows, undefined]);
+        };
+
+        if (trimmed.startsWith('SELECT') || trimmed.startsWith('PRAGMA') || trimmed.startsWith('WITH')) {
+            if (params.length > 0) {
+                db.all(sql, params, callback);
+            } else {
+                db.all(sql, callback);
+            }
+            return;
+        }
+
+        const runCallback = function (error) {
+            if (error) return reject(error);
+            resolve([{ lastID: this.lastID, changes: this.changes }, undefined]);
+        };
+
+        if (params.length > 0) {
+            db.run(sql, params, runCallback);
+        } else {
+            db.run(sql, runCallback);
+        }
+    });
+}
+
+function openSqliteDatabase() {
+    const dir = path.dirname(SQLITE_FILE_PATH);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    return new Promise((resolve, reject) => {
+        const db = new sqlite3.Database(SQLITE_FILE_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (error) => {
+            if (error) return reject(error);
+            db.run('PRAGMA foreign_keys = ON;', (pragmaError) => {
+                if (pragmaError) return reject(pragmaError);
+                resolve(db);
+            });
+        });
+    });
+}
+
+async function setupSqliteDatabase() {
+    console.log('🔌 Iniciando SQLite local...');
+    const db = await openSqliteDatabase();
+
+    try {
+        console.log('📋 Creando tablas SQLite...');
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS usuario (
+                Correo TEXT PRIMARY KEY,
+                Nombres TEXT,
+                Apellidos TEXT,
+                Contraseña TEXT NOT NULL,
+                Profesion TEXT,
+                FechaDeNacimiento TEXT,
+                Expectativas TEXT,
+                NombreUsuario TEXT NOT NULL UNIQUE,
+                Foto TEXT,
+                rol TEXT NOT NULL DEFAULT 'userN' CHECK (rol IN ('admi', 'userN'))
+            )
+        `);
+
+        await sqliteExecute(db, `DROP TABLE IF EXISTS password_reset_tokens;`);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Correo TEXT NOT NULL,
+                token TEXT NOT NULL UNIQUE,
+                expires_at TEXT NOT NULL,
+                FOREIGN KEY (Correo) REFERENCES usuario (Correo) ON DELETE CASCADE
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS tipopresupuesto (
+                idTipoPresupuesto INTEGER PRIMARY KEY,
+                TipoDePresupuesto TEXT
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS presupuesto (
+                idPresupuesto INTEGER PRIMARY KEY AUTOINCREMENT,
+                Fecha TEXT,
+                idTipoPresupuesto INTEGER,
+                Dinero REAL,
+                Ahorros REAL,
+                NombreUsuario TEXT,
+                FOREIGN KEY (idTipoPresupuesto) REFERENCES tipopresupuesto (idTipoPresupuesto),
+                FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS detallepresupuesto (
+                idDetalle INTEGER PRIMARY KEY AUTOINCREMENT,
+                idPresupuesto INTEGER,
+                categoria TEXT,
+                tipo_movimiento TEXT NOT NULL CHECK (tipo_movimiento IN ('Ingreso', 'Gasto')),
+                destino TEXT NOT NULL CHECK (destino IN ('presupuestado', 'real')),
+                monto REAL NOT NULL,
+                fecha_inicio TEXT,
+                fecha_fin TEXT,
+                nombre TEXT,
+                FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS gastos (
+                idGastos INTEGER PRIMARY KEY AUTOINCREMENT,
+                idPresupuesto INTEGER NOT NULL,
+                FechaDeRegistro TEXT,
+                Monto REAL,
+                TipoDeMonto TEXT CHECK (TipoDeMonto IN ('Efectivo', 'Tarjeta Debito', 'Tarjeta credito', 'Cheque', 'Billeteras virtuales')),
+                Descripcion TEXT,
+                TipoDeMontoDetalle TEXT,
+                FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS ingresos (
+                idIngresos INTEGER PRIMARY KEY AUTOINCREMENT,
+                idPresupuesto INTEGER NOT NULL,
+                FechaDeRegistro TEXT,
+                Monto REAL,
+                TipoDeMonto TEXT CHECK (TipoDeMonto IN ('Efectivo', 'Tarjeta Debito', 'Tarjeta credito', 'Cheque', 'Billeteras virtuales')),
+                Descripcion TEXT,
+                TipoDeMontoDetalle TEXT,
+                FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS telefonos (
+                idTelefono INTEGER PRIMARY KEY AUTOINCREMENT,
+                Numero TEXT,
+                Correo TEXT NOT NULL,
+                FOREIGN KEY (Correo) REFERENCES usuario (Correo)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS recordatorios (
+                idRecordatorios INTEGER PRIMARY KEY AUTOINCREMENT,
+                Comentario TEXT,
+                NombreUsuario TEXT NOT NULL,
+                FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS tiposderecordatorios (
+                idTiposDeRecordatorios INTEGER PRIMARY KEY AUTOINCREMENT,
+                TipoDeRecordatorio TEXT,
+                idRecordatorios INTEGER NOT NULL,
+                FOREIGN KEY (idRecordatorios) REFERENCES recordatorios (idRecordatorios)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS tipodecredito (
+                idTipoDeCredito INTEGER PRIMARY KEY,
+                TipoDeCredito TEXT
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS creditos (
+                idCreditos INTEGER PRIMARY KEY AUTOINCREMENT,
+                idPresupuesto INTEGER NOT NULL,
+                RangoInicial TEXT,
+                RangoFinal TEXT,
+                MontoTotal REAL,
+                idTipoDeCredito INTEGER NOT NULL,
+                FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto),
+                FOREIGN KEY (idTipoDeCredito) REFERENCES tipodecredito (idTipoDeCredito)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS pagodecredito (
+                idPagoDeCredito INTEGER PRIMARY KEY AUTOINCREMENT,
+                TipoDePago TEXT,
+                idCreditos INTEGER NOT NULL,
+                AccionRealizada TEXT,
+                FOREIGN KEY (idCreditos) REFERENCES creditos (idCreditos)
+            )
+        `);
+
+        await sqliteExecute(db, `
+            CREATE TABLE IF NOT EXISTS cuentas (
+                idCuentas INTEGER PRIMARY KEY AUTOINCREMENT,
+                Banco TEXT,
+                Monto REAL,
+                idPresupuesto INTEGER NOT NULL,
+                FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto)
+            )
+        `);
+
+        console.log('✅ Insertando datos básicos...');
+
+        await sqliteExecute(db, `
+            INSERT OR IGNORE INTO tipopresupuesto (idTipoPresupuesto, TipoDePresupuesto) VALUES
+            (1, 'Anual'),
+            (2, 'Mensual'),
+            (3, 'Quincenal'),
+            (4, 'Semanal'),
+            (5, 'Diario'),
+            (6, 'Proyecto'),
+            (7, 'Emergencia')
+        `);
+
+        await sqliteExecute(db, `
+            INSERT OR IGNORE INTO tipodecredito (idTipoDeCredito, TipoDeCredito) VALUES
+            (1, 'Hipotecario'),
+            (2, 'Automotriz'),
+            (3, 'Personal'),
+            (4, 'Educativo'),
+            (5, 'Comercial'),
+            (6, 'Agrícola'),
+            (7, 'Turístico')
+        `);
+
+        await sqliteExecute(db, `
+            INSERT OR IGNORE INTO usuario (NombreUsuario, Nombres, Apellidos, Contraseña, Correo, Profesion, rol) VALUES
+            ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'Tester', 'userN')
+        `);
+
+        console.log('✅ Todos los datos básicos insertados');
+        console.log('🎉 Base de datos SQLite configurada exitosamente!');
+    } finally {
+        db.close();
+    }
+}
+
+async function setupMysqlDatabase() {
     let connection;
     try {
-        // Crear conexión sin especificar base de datos
         connection = await mysql.createConnection({
             host: process.env.DB_HOST || 'localhost',
             user: process.env.DB_USER || 'root',
@@ -12,29 +262,22 @@ async function setupDatabase() {
         });
 
         console.log('🔌 Conectado a MySQL...');
-
-        // Crear base de datos si no existe
-        await connection.execute(
-            `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'bossbudget'} CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`
-        );
+        await connection.execute(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'bossbudget'} CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci`);
         console.log('✅ Base de datos creada/verificada');
 
-        // ⚠️ CORRECCIÓN: Cerrar conexión y crear una nueva apuntando a la DB
         await connection.end();
 
-        // Nueva conexión especificando la base de datos
         connection = await mysql.createConnection({
             host: process.env.DB_HOST || 'localhost',
             user: process.env.DB_USER || 'root',
             password: process.env.DB_PASSWORD || 'password',
             database: process.env.DB_NAME || 'bossbudget',
-            multipleStatements: true  // Permitir múltiples statements
+            multipleStatements: true
         });
 
         console.log('📊 Conectado a la base de datos bossbudget');
-        console.log('📋 Creando tablas...');
+        console.log('📋 Creando tablas MySQL...');
 
-        // Tabla usuario
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS usuario (
                 Correo VARCHAR(120) NOT NULL,
@@ -51,12 +294,9 @@ async function setupDatabase() {
                 UNIQUE KEY NombreUsuario (NombreUsuario)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
-        
-        await connection.execute(`
-            DROP TABLE IF EXISTS password_reset_tokens;
-            `);
 
-        // Tabla password_reset_tokens
+        await connection.execute(`DROP TABLE IF EXISTS password_reset_tokens;`);
+
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS password_reset_tokens (
                 id INT NOT NULL AUTO_INCREMENT,
@@ -70,8 +310,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-
-        // Tabla tipopresupuesto
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS tipopresupuesto (
                 idTipoPresupuesto INT NOT NULL,
@@ -80,7 +318,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla presupuesto
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS presupuesto (
                 idPresupuesto INT NOT NULL AUTO_INCREMENT,
@@ -97,7 +334,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla detallepresupuesto
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS detallepresupuesto (
                 idPresupuesto INT DEFAULT NULL,
@@ -115,7 +351,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla gastos
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS gastos (
                 idGastos INT NOT NULL AUTO_INCREMENT,
@@ -131,7 +366,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla ingresos
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS ingresos (
                 idIngresos INT NOT NULL AUTO_INCREMENT,
@@ -147,7 +381,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla telefonos
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS telefonos (
                 idTelefono INT NOT NULL,
@@ -159,7 +392,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla recordatorios
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS recordatorios (
                 idRecordatorios INT NOT NULL,
@@ -171,7 +403,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla tiposderecordatorios
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS tiposderecordatorios (
                 idTiposDeRecordatorios INT NOT NULL,
@@ -183,7 +414,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla tipodecredito
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS tipodecredito (
                 idTipoDeCredito INT NOT NULL,
@@ -192,7 +422,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla creditos
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS creditos (
                 idCreditos INT NOT NULL,
@@ -209,7 +438,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla pagodecredito
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS pagodecredito (
                 idPagoDeCredito INT NOT NULL,
@@ -222,7 +450,6 @@ async function setupDatabase() {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
         `);
 
-        // Tabla cuentas
         await connection.execute(`
             CREATE TABLE IF NOT EXISTS cuentas (
                 idCuentas INT NOT NULL,
@@ -237,7 +464,6 @@ async function setupDatabase() {
 
         console.log('✅ Insertando datos básicos...');
 
-        // Insertar datos básicos en tipopresupuesto
         await connection.execute(`
             INSERT IGNORE INTO tipopresupuesto (idTipoPresupuesto, TipoDePresupuesto) VALUES
             (1, 'Anual'),
@@ -249,7 +475,6 @@ async function setupDatabase() {
             (7, 'Emergencia')
         `);
 
-        // Insertar datos básicos en tipodecredito
         await connection.execute(`
             INSERT IGNORE INTO tipodecredito (idTipoDeCredito, TipoDeCredito) VALUES
             (1, 'Hipotecario'),
@@ -263,26 +488,11 @@ async function setupDatabase() {
 
         await connection.execute(`
             INSERT IGNORE INTO usuario (NombreUsuario, Nombres, Apellidos, Contraseña, Correo, Profesion, rol) VALUES
-            ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'Tester', 'userN')`);
+            ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'Tester', 'userN')
+        `);
 
         console.log('✅ Todos los datos básicos insertados');
         console.log('🎉 Base de datos configurada exitosamente!');
-        console.log('📋 Tablas creadas:');
-        console.log('   - usuario');
-        console.log('   - password_reset_tokens');
-        console.log('   - tipopresupuesto');
-        console.log('   - presupuesto');
-        console.log('   - detallepresupuesto');
-        console.log('   - gastos');
-        console.log('   - ingresos');
-        console.log('   - telefonos');
-        console.log('   - recordatorios');
-        console.log('   - tiposderecordatorios');
-        console.log('   - tipodecredito');
-        console.log('   - creditos');
-        console.log('   - pagodecredito');
-        console.log('   - cuentas');
-        
     } catch (error) {
         console.error('❌ Error configurando la base de datos:', error);
         process.exit(1);
@@ -293,7 +503,21 @@ async function setupDatabase() {
     }
 }
 
-// Ejecutar si es llamado directamente
+async function setupDatabase() {
+    if (DB_TYPE === 'sqlite') {
+        await setupSqliteDatabase();
+        return;
+    }
+
+    try {
+        await setupMysqlDatabase();
+    } catch (error) {
+        console.error('⚠️ No se pudo inicializar MySQL:', error.message || error);
+        console.log('ℹ️ Iniciando fallback a SQLite...');
+        await setupSqliteDatabase();
+    }
+}
+
 if (require.main === module) {
     setupDatabase();
 }
