@@ -8,9 +8,9 @@
     "dev": "nodemon server.js",
     "setup:db": "node scripts/setup-database.js",
     "setup:mysql": "./scripts/setup-codespace.sh",
-    "setup:all": "npm run setup:mysql && npm run setup:db"
+    "setup:all": "npm run setup:mysql && npm run setup:db",
+    "postinstall": "node scripts/setup-database.js"
   },
-  
   "keywords": [
     "budget",
     "api",
