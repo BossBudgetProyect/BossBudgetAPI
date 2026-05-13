@@ -39,13 +39,14 @@ services:
       - "3307:3306"
 
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb-data:/var/lib/mysql
 
     networks:
       - app-network
 
 volumes:
-  mariadb_data:
+  mariadb-data:
+    external: true
 
 networks:
   app-network:

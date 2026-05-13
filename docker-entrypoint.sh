@@ -9,7 +9,11 @@ done
 echo "✅ MySQL conectado exitosamente"
 
 echo "🔄 Ejecutando migraciones de la base de datos..."
-node scripts/setup-database.js
+if [ -f scripts/setup-database.js ]; then
+    node scripts/setup-database.js
+else
+    echo "⚠️  script setup-database.js no encontrado, omitiendo migraciones"
+fi
 
 echo "🚀 Iniciando BossBudget API..."
 exec npm start
