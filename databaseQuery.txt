@@ -268,3 +268,21 @@ VALUES ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'T
 -- SELECT 'gastos', COUNT(*) FROM gastos
 -- UNION ALL
 -- SELECT 'ingresos', COUNT(*) FROM ingresos;
+
+-- ===========================================
+-- TABLE: metas (versión simplificada)
+-- ===========================================
+CREATE TABLE IF NOT EXISTS metas (
+    idMeta INT NOT NULL AUTO_INCREMENT,
+    NombreUsuario VARCHAR(50) NOT NULL,
+    NombreMeta VARCHAR(100) NOT NULL,
+    Descripcion TEXT,
+    MontoObjetivo DECIMAL(12,2) NOT NULL CHECK (MontoObjetivo > 0),
+    MontoActual DECIMAL(12,2) DEFAULT 0.00 CHECK (MontoActual >= 0),
+    FechaInicio DATE NOT NULL,
+    FechaLimite DATE,
+    Estado ENUM('pendiente', 'completada', 'cancelada') DEFAULT 'pendiente',
+    PRIMARY KEY (idMeta),
+    KEY NombreUsuario (NombreUsuario),
+    CONSTRAINT metas_ibfk_1 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
