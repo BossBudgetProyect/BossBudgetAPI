@@ -187,6 +187,8 @@ CREATE TABLE IF NOT EXISTS pagodecredito (
     TipoDePago VARCHAR(50) DEFAULT NULL,
     idCreditos INT NOT NULL,
     AccionRealizada VARCHAR(50) DEFAULT NULL,
+    Monto DECIMAL(10,2) NOT NULL DEFAULT 0,
+    FechaPago DATE DEFAULT NULL,
     PRIMARY KEY (idPagoDeCredito),
     KEY idCreditos (idCreditos),
     CONSTRAINT pagodecredito_ibfk_1 FOREIGN KEY (idCreditos) REFERENCES creditos (idCreditos)

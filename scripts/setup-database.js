@@ -485,7 +485,9 @@ async function createAllTablesMySQL(connection) {
             idPagoDeCredito INT NOT NULL,
             TipoDePago VARCHAR(50) DEFAULT NULL,
             idCreditos INT NOT NULL,
-            AccionRealizada VARCHAR(50) DEFAULT NULL,
+            Monto DECIMAL(10,2) NOT NULL DEFAULT 0,
+            FechaPago DATE DEFAULT NULL,
+            AccionRealizada TEXT DEFAULT NULL,
             PRIMARY KEY (idPagoDeCredito),
             KEY idCreditos (idCreditos),
             CONSTRAINT pagodecredito_ibfk_1 FOREIGN KEY (idCreditos) REFERENCES creditos (idCreditos)
