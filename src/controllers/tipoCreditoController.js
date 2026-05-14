@@ -1,9 +1,11 @@
+const tipoCreditoService = require('../services/tipoCreditoService');
+
 class TipoCreditoController {
     constructor(tipoCreditoService) {
         this.tipoCreditoService = tipoCreditoService;
     }
 
-    async getAllTipos(req, res) {
+    async obtenerTodosTipos(req, res) {
         try {
             const tipos = await this.tipoCreditoService.getAllTipos();
             res.json({
@@ -18,7 +20,7 @@ class TipoCreditoController {
         }
     }
 
-    async getTipoById(req, res) {
+    async obtenerTipoPorId(req, res) {
         try {
             const tipo = await this.tipoCreditoService.getTipoById(req.params.id);
             res.json({
@@ -33,7 +35,7 @@ class TipoCreditoController {
         }
     }
 
-    async createTipo(req, res) {
+    async crearTipo(req, res) {
         try {
             const tipo = await this.tipoCreditoService.createTipo(req.body);
             res.status(201).json({
@@ -49,7 +51,7 @@ class TipoCreditoController {
         }
     }
 
-    async updateTipo(req, res) {
+    async actualizarTipo(req, res) {
         try {
             const tipo = await this.tipoCreditoService.updateTipo(req.params.id, req.body);
             res.json({
@@ -65,7 +67,7 @@ class TipoCreditoController {
         }
     }
 
-    async deleteTipo(req, res) {
+    async eliminarTipo(req, res) {
         try {
             await this.tipoCreditoService.deleteTipo(req.params.id);
             res.json({
@@ -81,4 +83,4 @@ class TipoCreditoController {
     }
 }
 
-module.exports = TipoCreditoController;
+module.exports = new TipoCreditoController(tipoCreditoService);

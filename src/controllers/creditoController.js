@@ -1,9 +1,11 @@
+const creditoService = require('../services/creditoService');
+
 class CreditoController {
     constructor(creditoService) {
         this.creditoService = creditoService;
     }
 
-    async createCredito(req, res) {
+    async crearCredito(req, res) {
         try {
             const credito = await this.creditoService.createCredito(req.body);
             res.status(201).json({
@@ -19,7 +21,7 @@ class CreditoController {
         }
     }
 
-    async getCreditoById(req, res) {
+    async obtenerCredito(req, res) {
         try {
             const credito = await this.creditoService.getCreditoById(req.params.id);
             res.json({
@@ -34,7 +36,7 @@ class CreditoController {
         }
     }
 
-    async getCreditosByPresupuesto(req, res) {
+    async obtenerCreditosPorPresupuesto(req, res) {
         try {
             const creditos = await this.creditoService.getCreditosByPresupuesto(req.params.idPresupuesto);
             res.json({
@@ -49,9 +51,9 @@ class CreditoController {
         }
     }
 
-    async getCreditosByUsuario(req, res) {
+    async misCreditos(req, res) {
         try {
-            const creditos = await this.creditoService.getCreditosByUsuario(req.params.nombreUsuario);
+            const creditos = await this.creditoService.getCreditosByUsuario(req.user.nombreUsuario);
             res.json({
                 success: true,
                 data: creditos
@@ -64,7 +66,22 @@ class CreditoController {
         }
     }
 
-    async updateCredito(req, res) {
+    async miResumenCreditos(req, res) {
+        try {
+            const resumen = await this.creditoService.getResumenUsuario(req.user.nombreUsuario);
+            res.json({
+                success: true,
+                data: resumen
+            });
+        } catch (error) {
+            res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+    }
+
+    async actualizarCredito(req, res) {
         try {
             const credito = await this.creditoService.updateCredito(req.params.id, req.body);
             res.json({
@@ -80,7 +97,7 @@ class CreditoController {
         }
     }
 
-    async deleteCredito(req, res) {
+    async eliminarCredito(req, res) {
         try {
             await this.creditoService.deleteCredito(req.params.id);
             res.json({
@@ -110,21 +127,6 @@ class CreditoController {
             });
         }
     }
-
-    async getResumenUsuario(req, res) {
-        try {
-            const resumen = await this.creditoService.getResumenUsuario(req.params.nombreUsuario);
-            res.json({
-                success: true,
-                data: resumen
-            });
-        } catch (error) {
-            res.status(400).json({
-                success: false,
-                message: error.message
-            });
-        }
-    }
 }
 
-module.exports = CreditoController;
+module.exports = new CreditoController(creditoService);

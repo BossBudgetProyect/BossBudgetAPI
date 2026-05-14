@@ -30,9 +30,9 @@ COPY --from=builder --chown=nodeapp:nodeapp /app/package*.json ./
 COPY --from=builder --chown=nodeapp:nodeapp /app/node_modules ./node_modules
 COPY --from=builder --chown=nodeapp:nodeapp /app/src ./src
 COPY --from=builder --chown=nodeapp:nodeapp /app/server.js ./
+COPY --from=builder --chown=nodeapp:nodeapp /app/scripts ./scripts
 
-# Copiar archivo .env si existe
-COPY --chown=nodeapp:nodeapp .env* ./
+RUN chown -R nodeapp:nodeapp /app
 
 # Crear directorio uploads y asignar permisos
 RUN mkdir -p /app/uploads && \

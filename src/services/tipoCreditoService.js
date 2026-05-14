@@ -1,3 +1,4 @@
+const tipoCreditoRepository = require('../repositories/tipoCreditoRepository');
 const TipoCredito = require('../models/tipoCreditoModel');
 
 class TipoCreditoService {
@@ -48,4 +49,4 @@ class TipoCreditoService {
     }
 }
 
-module.exports = TipoCreditoService;
+module.exports = new TipoCreditoService(tipoCreditoRepository);

@@ -1,3 +1,5 @@
+const creditoRepository = require('../repositories/creditoRepository');
+const pagoCreditoRepository = require('../repositories/pagoCreditoRepository');
 const Credito = require('../models/creditoModel');
 const PagoCredito = require('../models/pagoCreditoModel');
 
@@ -115,4 +117,4 @@ class CreditoService {
     }
 }
 
-module.exports = CreditoService;
+module.exports = new CreditoService(creditoRepository, pagoCreditoRepository);

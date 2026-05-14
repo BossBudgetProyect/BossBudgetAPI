@@ -8,8 +8,8 @@ if ! pgrep -f "node" > /dev/null; then
 fi
 
 # Verificar si el puerto está escuchando
-if ! netstat -tln | grep ":${PORT:-5000}" > /dev/null; then
-    echo "❌ La aplicación no está escuchando en el puerto ${PORT:-5000}"
+if ! netstat -tln | grep ":${PORT:-3000}" > /dev/null; then
+    echo "❌ La aplicación no está escuchando en el puerto ${PORT:-3000}"
     exit 1
 fi
 

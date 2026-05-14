@@ -8,8 +8,7 @@
     "dev": "nodemon server.js",
     "setup:db": "node scripts/setup-database.js",
     "setup:mysql": "./scripts/setup-codespace.sh",
-    "setup:all": "npm run setup:mysql && npm run setup:db",
-    "postinstall": "node scripts/setup-database.js"
+    "setup:all": "npm run setup:mysql && npm run setup:db"
   },
   "keywords": [
     "budget",
@@ -32,13 +31,8 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "mysql2": "^3.15.3",
-<<<<<<< HEAD
     "nodemailer": "^7.0.10",
     "sqlite3": "^5.1.7"
-=======
-    "sqlite3": "^5.1.6",
-    "nodemailer": "^7.0.10"
->>>>>>> origin
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
