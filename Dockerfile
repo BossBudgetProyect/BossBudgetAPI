@@ -6,6 +6,7 @@ RUN apk add --no-cache python3 make g++ cairo-dev jpeg-dev pango-dev giflib-dev
 WORKDIR /app
 
 COPY package*.json ./
+COPY package-lock.json ./
 COPY scripts/ ./scripts/
 
 RUN npm ci
