@@ -1,20 +1,20 @@
-# Etapa de construcción
-FROM node:16-alpine AS builder
+FROM node:20-alpine AS builder
 
-# Directorio de trabajo
+# Instalar dependencias de compilación para sqlite3 y otras dependencias
+RUN apk add --no-cache python3 make g++ cairo-dev jpeg-dev pango-dev giflib-dev
+
 WORKDIR /app
 
-# Copiar package.json y package-lock.json
 COPY package*.json ./
+COPY scripts/ ./scripts/
 
-# Instalar dependencias
 RUN npm ci
 
-# Copiar el resto del código fuente
-COPY . .
+COPY src ./src
+COPY server.js ./
 
-# Etapa de producción
-FROM node:16-alpine
+# Etapa final
+FROM node:20-alpine
 
 # Instalar MySQL client y otras dependencias necesarias
 RUN apk add --no-cache mysql-client curl bash
@@ -23,14 +23,12 @@ RUN apk add --no-cache mysql-client curl bash
 RUN addgroup -S nodeapp && \
     adduser -S -G nodeapp nodeapp
 
-# Directorio de trabajo
 WORKDIR /app
 
-# Copiar archivos necesarios desde builder
+# Copiar del builder con permisos correctos
 COPY --from=builder --chown=nodeapp:nodeapp /app/package*.json ./
 COPY --from=builder --chown=nodeapp:nodeapp /app/node_modules ./node_modules
 COPY --from=builder --chown=nodeapp:nodeapp /app/src ./src
-COPY --from=builder --chown=nodeapp:nodeapp /app/scripts ./scripts
 COPY --from=builder --chown=nodeapp:nodeapp /app/server.js ./
 
 # Copiar archivo .env si existe
@@ -52,8 +50,8 @@ RUN chmod +x /app/healthcheck.sh
 # Configurar healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD ["/app/healthcheck.sh"]
 
-# Exponer puerto (se tomará del .env)
-EXPOSE ${PORT:-5000}
+# Exponer puerto
+EXPOSE 3000
 
 # Cambiar a usuario no root
 USER nodeapp

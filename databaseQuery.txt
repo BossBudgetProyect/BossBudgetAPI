@@ -1,0 +1,270 @@
+-- ===========================================
+-- BossBudget Database Schema for MySQL Workbench
+-- Generated from application models
+-- ===========================================
+
+-- Create database
+CREATE DATABASE IF NOT EXISTS bossbudget
+CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+
+USE bossbudget;
+
+-- ===========================================
+-- TABLE: usuario
+-- ===========================================
+CREATE TABLE IF NOT EXISTS usuario (
+    Correo VARCHAR(120) NOT NULL,
+    Nombres VARCHAR(70) DEFAULT NULL,
+    Apellidos VARCHAR(70) DEFAULT NULL,
+    Contraseña VARCHAR(60) NOT NULL,
+    Profesion VARCHAR(40) DEFAULT NULL,
+    FechaDeNacimiento DATE DEFAULT NULL,
+    Expectativas TEXT,
+    NombreUsuario VARCHAR(50) NOT NULL,
+    Foto VARCHAR(255) DEFAULT NULL,
+    rol ENUM('admi','userN') NOT NULL DEFAULT 'userN',
+    PRIMARY KEY (Correo),
+    UNIQUE KEY NombreUsuario (NombreUsuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: password_reset_tokens
+-- ===========================================
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id INT NOT NULL AUTO_INCREMENT,
+    Correo VARCHAR(120) NOT NULL,
+    token VARCHAR(255) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY Correo (Correo),
+    CONSTRAINT password_reset_tokens_ibfk_1 FOREIGN KEY (Correo) REFERENCES usuario (Correo) ON DELETE CASCADE,
+    UNIQUE KEY token_unique (token)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: tipopresupuesto
+-- ===========================================
+CREATE TABLE IF NOT EXISTS tipopresupuesto (
+    idTipoPresupuesto INT NOT NULL,
+    TipoDePresupuesto VARCHAR(50) DEFAULT NULL,
+    PRIMARY KEY (idTipoPresupuesto)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: presupuesto
+-- ===========================================
+CREATE TABLE IF NOT EXISTS presupuesto (
+    idPresupuesto INT NOT NULL AUTO_INCREMENT,
+    Fecha DATE DEFAULT NULL,
+    idTipoPresupuesto INT DEFAULT NULL,
+    Dinero DECIMAL(10,0) DEFAULT NULL,
+    Ahorros DECIMAL(10,0) DEFAULT NULL,
+    NombreUsuario VARCHAR(50) DEFAULT NULL,
+    PRIMARY KEY (idPresupuesto),
+    KEY idTipoPresupuesto (idTipoPresupuesto),
+    KEY NombreUsuario (NombreUsuario),
+    CONSTRAINT presupuesto_ibfk_2 FOREIGN KEY (idTipoPresupuesto) REFERENCES tipopresupuesto (idTipoPresupuesto),
+    CONSTRAINT presupuesto_ibfk_3 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
+) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: detallepresupuesto
+-- ===========================================
+CREATE TABLE IF NOT EXISTS detallepresupuesto (
+    idPresupuesto INT DEFAULT NULL,
+    idDetalle INT NOT NULL AUTO_INCREMENT,
+    categoria VARCHAR(50) DEFAULT NULL,
+    tipo_movimiento ENUM('Ingreso','Gasto') NOT NULL,
+    destino ENUM('presupuestado','real') NOT NULL,
+    monto DECIMAL(10,2) NOT NULL,
+    fecha_inicio DATE DEFAULT NULL,
+    fecha_fin DATE DEFAULT NULL,
+    nombre VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (idDetalle),
+    KEY idPresupuesto (idPresupuesto),
+    CONSTRAINT fk_detallepresupuesto_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: gastos
+-- ===========================================
+CREATE TABLE IF NOT EXISTS gastos (
+    idGastos INT NOT NULL AUTO_INCREMENT,
+    idPresupuesto INT NOT NULL,
+    FechaDeRegistro DATE DEFAULT NULL,
+    Monto DECIMAL(10,0) DEFAULT NULL,
+    TipoDeMonto ENUM('Efectivo','Tarjeta Debito','Tarjeta credito','Cheque','Billeteras virtuales') DEFAULT NULL,
+    Descripcion TEXT,
+    TipoDeMontoDetalle VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (idGastos),
+    KEY idPresupuesto (idPresupuesto),
+    CONSTRAINT fk_gastos_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: ingresos
+-- ===========================================
+CREATE TABLE IF NOT EXISTS ingresos (
+    idIngresos INT NOT NULL AUTO_INCREMENT,
+    idPresupuesto INT NOT NULL,
+    FechaDeRegistro DATE DEFAULT NULL,
+    Monto DECIMAL(10,0) DEFAULT NULL,
+    TipoDeMonto ENUM('Efectivo','Tarjeta Debito','Tarjeta credito','Cheque','Billeteras virtuales') DEFAULT NULL,
+    Descripcion TEXT,
+    TipoDeMontoDetalle VARCHAR(100) DEFAULT NULL,
+    PRIMARY KEY (idIngresos),
+    KEY idPresupuesto (idPresupuesto),
+    CONSTRAINT fk_ingresos_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: telefonos
+-- ===========================================
+CREATE TABLE IF NOT EXISTS telefonos (
+    idTelefono INT NOT NULL,
+    Numero VARCHAR(15) DEFAULT NULL,
+    Correo VARCHAR(120) NOT NULL,
+    PRIMARY KEY (idTelefono),
+    KEY Correo (Correo),
+    CONSTRAINT telefonos_ibfk_1 FOREIGN KEY (Correo) REFERENCES usuario (Correo)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: recordatorios
+-- ===========================================
+CREATE TABLE IF NOT EXISTS recordatorios (
+    idRecordatorios INT NOT NULL,
+    Comentario VARCHAR(120) DEFAULT NULL,
+    NombreUsuario VARCHAR(50) NOT NULL,
+    PRIMARY KEY (idRecordatorios),
+    KEY NombreUsuario (NombreUsuario),
+    CONSTRAINT recordatorios_ibfk_1 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: tiposderecordatorios
+-- ===========================================
+CREATE TABLE IF NOT EXISTS tiposderecordatorios (
+    idTiposDeRecordatorios INT NOT NULL,
+    TipoDeRecordatorio VARCHAR(50) DEFAULT NULL,
+    idRecordatorios INT NOT NULL,
+    PRIMARY KEY (idTiposDeRecordatorios),
+    KEY idRecordatorios (idRecordatorios),
+    CONSTRAINT tiposderecordatorios_ibfk_1 FOREIGN KEY (idRecordatorios) REFERENCES recordatorios (idRecordatorios)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: tipodecredito
+-- ===========================================
+CREATE TABLE IF NOT EXISTS tipodecredito (
+    idTipoDeCredito INT NOT NULL,
+    TipoDeCredito VARCHAR(50) DEFAULT NULL,
+    PRIMARY KEY (idTipoDeCredito)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: creditos
+-- ===========================================
+CREATE TABLE IF NOT EXISTS creditos (
+    idCreditos INT NOT NULL,
+    idPresupuesto INT NOT NULL,
+    RangoInicial DATE DEFAULT NULL,
+    RangoFinal DATE DEFAULT NULL,
+    MontoTotal DECIMAL(10,0) DEFAULT NULL,
+    idTipoDeCredito INT NOT NULL,
+    PRIMARY KEY (idCreditos),
+    KEY idPresupuesto (idPresupuesto),
+    KEY idTipoDeCredito (idTipoDeCredito),
+    CONSTRAINT creditos_ibfk_1 FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto),
+    CONSTRAINT creditos_ibfk_2 FOREIGN KEY (idTipoDeCredito) REFERENCES tipodecredito (idTipoDeCredito)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: pagodecredito
+-- ===========================================
+CREATE TABLE IF NOT EXISTS pagodecredito (
+    idPagoDeCredito INT NOT NULL,
+    TipoDePago VARCHAR(50) DEFAULT NULL,
+    idCreditos INT NOT NULL,
+    AccionRealizada VARCHAR(50) DEFAULT NULL,
+    Monto DECIMAL(10,2) NOT NULL DEFAULT 0,
+    FechaPago DATE DEFAULT NULL,
+    PRIMARY KEY (idPagoDeCredito),
+    KEY idCreditos (idCreditos),
+    CONSTRAINT pagodecredito_ibfk_1 FOREIGN KEY (idCreditos) REFERENCES creditos (idCreditos)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- TABLE: cuentas
+-- ===========================================
+CREATE TABLE IF NOT EXISTS cuentas (
+    idCuentas INT NOT NULL,
+    Banco TEXT,
+    Monto DECIMAL(10,0) DEFAULT NULL,
+    idPresupuesto INT NOT NULL,
+    PRIMARY KEY (idCuentas),
+    KEY idPresupuesto (idPresupuesto),
+    CONSTRAINT cuentas_ibfk_1 FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ===========================================
+-- INSERT BASIC DATA
+-- ===========================================
+
+-- Insertar tipos de presupuesto básicos
+INSERT IGNORE INTO tipopresupuesto (idTipoPresupuesto, TipoDePresupuesto) VALUES
+(1, 'Anual'),
+(2, 'Mensual'),
+(3, 'Quincenal'),
+(4, 'Semanal'),
+(5, 'Diario'),
+(6, 'Proyecto'),
+(7, 'Emergencia');
+
+-- Insertar tipos de crédito básicos
+INSERT IGNORE INTO tipodecredito (idTipoDeCredito, TipoDeCredito) VALUES
+(1, 'Hipotecario'),
+(2, 'Automotriz'),
+(3, 'Personal'),
+(4, 'Educativo'),
+(5, 'Comercial'),
+(6, 'Agrícola'),
+(7, 'Turístico');
+
+-- Insertar usuario de prueba (contraseña: password123 hasheada con bcrypt)
+INSERT IGNORE INTO usuario (NombreUsuario, Nombres, Apellidos, Contraseña, Correo, Profesion, rol)
+VALUES ('testuser', 'Test', 'User', '$2b$10$hashedpassword', 'test@test.com', 'Tester', 'userN');
+
+-- ===========================================
+-- USEFUL QUERIES FOR TESTING
+-- ===========================================
+
+-- Ver todas las tablas
+-- SHOW TABLES;
+
+-- Ver estructura de una tabla específica
+-- DESCRIBE usuario;
+-- DESCRIBE presupuesto;
+-- DESCRIBE gastos;
+-- DESCRIBE ingresos;
+
+-- Ver relaciones/foreign keys
+-- SELECT
+--     TABLE_NAME,
+--     COLUMN_NAME,
+--     CONSTRAINT_NAME,
+--     REFERENCED_TABLE_NAME,
+--     REFERENCED_COLUMN_NAME
+-- FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+-- WHERE REFERENCED_TABLE_SCHEMA = 'bossbudget'
+--     AND REFERENCED_TABLE_NAME IS NOT NULL
+-- ORDER BY TABLE_NAME;
+
+-- Contar registros por tabla
+-- SELECT 'usuario' as tabla, COUNT(*) as registros FROM usuario
+-- UNION ALL
+-- SELECT 'presupuesto', COUNT(*) FROM presupuesto
+-- UNION ALL
+-- SELECT 'gastos', COUNT(*) FROM gastos
+-- UNION ALL
+-- SELECT 'ingresos', COUNT(*) FROM ingresos;

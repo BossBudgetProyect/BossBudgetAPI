@@ -15,5 +15,9 @@ sudo service mysql start
 echo "⚙️ Configurando usuario root..."
 sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';"
 
+# ✅ NUEVO: Instalar dependencias (esto ejecutará postinstall automáticamente)
+echo "📦 Instalando dependencias y configurando base de datos..."
+npm install
+
 echo "✅ MySQL instalado y configurado en Codespaces"
 echo "📊 Ahora ejecuta: npm run setup:db"
