@@ -10,8 +10,9 @@ const passwordRoutes = require('./routes/password');
 const presupuestosRoutes = require('./routes/presupuestos');
 const gastosRoutes = require('./routes/gastos');
 const ingresosRoutes = require('./routes/ingresos');
-const creditosRoutes = require('./routes/creditos');           // ✅ NUEVA
-const tiposCreditoRoutes = require('./routes/tiposCredito');   // ✅ NUEVA
+const creditosRoutes = require('./routes/creditos');     
+const tiposCreditoRoutes = require('./routes/tiposCredito');  
+const metasRoutes = require('./routes/metas');
 
 const app = express();
 
@@ -96,8 +97,9 @@ app.use('/api/password', passwordRoutes);
 app.use('/api/presupuestos', presupuestosRoutes);
 app.use('/api/gastos', gastosRoutes);
 app.use('/api/ingresos', ingresosRoutes);
-app.use('/api/creditos', creditosRoutes);              // ✅ NUEVA
-app.use('/api/tipos-credito', tiposCreditoRoutes);     // ✅ NUEVA
+app.use('/api/creditos', creditosRoutes);        
+app.use('/api/tipos-credito', tiposCreditoRoutes);  
+app.use('/api/metas', metasRoutes);
 
 // ========== RUTAS BÁSICAS ==========
 

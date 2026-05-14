@@ -561,6 +561,179 @@ const response = await fetch('https://bossbudgetapi-production.up.railway.app/ap
 const data = await response.json();
 ```
 
+## ENDPOINTS CREDITOS
+###Crear Crédito
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/creditos \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "idPresupuesto": 1,
+    "RangoInicial": "2024-01-01",
+    "RangoFinal": "2025-12-31",
+    "MontoTotal": 50000,
+    "idTipoDeCredito": 3
+  }'
+```
+
+### Registrar Pago de Crédito
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/creditos/pago \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "TipoDePago": "Transferencia",
+    "idCreditos": 1,
+    "Monto": 5000,
+    "AccionRealizada": "Primera cuota - Enero"
+  }'
+```
+
+### Obtener Resumen de Mis Créditos
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/creditos/mi-resumen \
+  -H "Authorization: Bearer <token>"
+```
+
+### Listar Todos Mis Créditos
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/creditos/mis-creditos \
+  -H "Authorization: Bearer <token>"
+```
+
+### Obtener Créditos por Presupuesto
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/creditos/presupuesto/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Obtener Crédito Específico
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/creditos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Actualizar Crédito
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/creditos/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "RangoInicial": "2024-03-01",
+    "RangoFinal": "2026-02-28",
+    "MontoTotal": 55000,
+    "idTipoDeCredito": 2
+  }'
+```
+
+### Eliminar Crédito
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/creditos/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+## ENDPOINTS DE TIPOCREDITO
+###Listar Todos los Tipos de Crédito (Público)
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/tipos-credito
+```
+
+### Obtener Tipo de Crédito Específico
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/tipos-credito/3 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Crear Nuevo Tipo de Crédito (Solo Admin)
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/tipos-credito \
+  -H "Authorization: Bearer <token_admin>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "idTipoDeCredito": 8,
+    "TipoDeCredito": "Préstamo Personal"
+  }'
+```
+
+### Actualizar Tipo de Crédito (Solo Admin)
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/tipos-credito/8 \
+  -H "Authorization: Bearer <token_admin>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "TipoDeCredito": "Préstamo Personal Express"
+  }'
+```
+
+### Eliminar Tipo de Crédito (Solo Admin)
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/tipos-credito/8 \
+  -H "Authorization: Bearer <token_admin>"
+```
+
+## ENDPOINTS METAS
+### Crear Meta
+```bash
+curl -X POST https://bossbudgetapi-production.up.railway.app/api/metas \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombreMeta": "Viaje a Cancún",
+    "descripcion": "Ahorrar para vacaciones de verano",
+    "montoObjetivo": 15000,
+    "montoActual": 3000,
+    "fechaInicio": "2024-01-01",
+    "fechaLimite": "2024-12-31",
+    "estado": "pendiente"
+  }'
+```
+
+### Listar Metas del Usuario
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/metas \
+  -H "Authorization: Bearer <token>"
+```
+
+### Obtener Meta Específica
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/metas/1 \
+  -H "Authorization: Bearer <token>"
+```
+
+### Actualizar Meta
+```bash
+curl -X PUT https://bossbudgetapi-production.up.railway.app/api/metas/1 \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nombreMeta": "Viaje a Cancún - Actualizado",
+    "montoObjetivo": 20000,
+    "fechaLimite": "2024-10-31"
+  }'
+```
+
+### Actualizar Progreso de Meta
+```bash
+curl -X PATCH https://bossbudgetapi-production.up.railway.app/api/metas/1/progreso \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "montoActual": 8000
+  }'
+```
+
+### Obtener Estadísticas de Metas
+```bash
+curl -X GET https://bossbudgetapi-production.up.railway.app/api/metas/estadisticas \
+  -H "Authorization: Bearer <token>"
+```
+
+### Eliminar Meta
+```bash
+curl -X DELETE https://bossbudgetapi-production.up.railway.app/api/metas/1 \
+  -H "Authorization: Bearer <token>"
+```
+
 ---
 
 ## 📋 NOTAS IMPORTANTES
