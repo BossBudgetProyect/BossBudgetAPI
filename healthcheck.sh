@@ -24,7 +24,7 @@ if [ "${DB_TYPE:-mysql}" = "sqlite" ]; then
     exit 0
 fi
 
-if mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; then
+if mariadb-admin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; then
     echo "✅ La aplicación está funcionando correctamente con MySQL"
     exit 0
 fi

@@ -14,7 +14,7 @@ echo "🔧 DB_TYPE=${DB_TYPE}"
 
 if [ "${DB_TYPE}" != "sqlite" ]; then
   echo "🔄 Verificando conexión a MySQL..."
-  until mysqladmin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; do
+  until mariadb-admin ping -h "${DB_HOST}" -u "${DB_USER}" -p"${DB_PASSWORD}" --silent; do
       echo "⏳ Esperando a MySQL..."
       sleep 2
   done
