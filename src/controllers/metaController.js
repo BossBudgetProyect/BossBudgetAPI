@@ -1,10 +1,11 @@
+// controllers/metaController.js
 const metaService = require('../services/metaService');
 
 class MetaController {
     
     async crearMeta(req, res) {
         try {
-            const NombreUsuario = req.user.NombreUsuario; // Asumiendo que viene del JWT
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             const metaData = req.body;
             
             const nuevaMeta = await metaService.crearMeta(metaData, NombreUsuario);
@@ -24,7 +25,7 @@ class MetaController {
     
     async listarMetas(req, res) {
         try {
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             const metas = await metaService.listarMetas(NombreUsuario);
             
             res.status(200).json({
@@ -42,7 +43,7 @@ class MetaController {
     async obtenerMeta(req, res) {
         try {
             const { id } = req.params;
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             
             const meta = await metaService.obtenerMeta(id, NombreUsuario);
             
@@ -61,7 +62,7 @@ class MetaController {
     async actualizarMeta(req, res) {
         try {
             const { id } = req.params;
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             const metaData = req.body;
             
             await metaService.actualizarMeta(id, metaData, NombreUsuario);
@@ -82,7 +83,7 @@ class MetaController {
         try {
             const { id } = req.params;
             const { montoActual } = req.body;
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             
             if (montoActual === undefined) {
                 throw new Error('El monto actual es requerido');
@@ -105,7 +106,7 @@ class MetaController {
     async eliminarMeta(req, res) {
         try {
             const { id } = req.params;
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             
             await metaService.eliminarMeta(id, NombreUsuario);
             
@@ -123,7 +124,7 @@ class MetaController {
     
     async obtenerEstadisticas(req, res) {
         try {
-            const NombreUsuario = req.user.NombreUsuario;
+            const NombreUsuario = req.user.nombreUsuario; // ← minúscula
             const estadisticas = await metaService.obtenerEstadisticas(NombreUsuario);
             
             res.status(200).json({
