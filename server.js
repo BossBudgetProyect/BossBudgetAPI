@@ -5,6 +5,9 @@ const db = require('./src/config/database');
 
 const PORT = process.env.PORT || 3000;
 
+// ✅ SOLUCIÓN: Confiar en el primer proxy (Railway)
+app.set('trust proxy', 1);
+
 async function startServer() {
     try {
         // Verify the database connection is ready before accepting traffic

@@ -86,14 +86,27 @@ CREATE TABLE IF NOT EXISTS detallepresupuesto (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
--- TABLE: gastos
+-- TABLE: gastos (ACTUALIZADA)
 -- ===========================================
 CREATE TABLE IF NOT EXISTS gastos (
     idGastos INT NOT NULL AUTO_INCREMENT,
     idPresupuesto INT NOT NULL,
     FechaDeRegistro DATE DEFAULT NULL,
     Monto DECIMAL(10,0) DEFAULT NULL,
-    TipoDeMonto ENUM('Efectivo','Tarjeta Debito','Tarjeta credito','Cheque','Billeteras virtuales') DEFAULT NULL,
+    TipoDeMonto ENUM(
+        'Efectivo',
+        'Tarjeta Debito',
+        'Tarjeta credito',
+        'Cheque',
+        'Billeteras virtuales',
+        'Supermercado',
+        'Restaurante',
+        'Transporte',
+        'Ocio',
+        'Salud',
+        'Educación',
+        'Otros'
+    ) DEFAULT NULL,
     Descripcion TEXT,
     TipoDeMontoDetalle VARCHAR(100) DEFAULT NULL,
     PRIMARY KEY (idGastos),
@@ -102,14 +115,25 @@ CREATE TABLE IF NOT EXISTS gastos (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
--- TABLE: ingresos
+-- TABLE: ingresos (ACTUALIZADA)
 -- ===========================================
 CREATE TABLE IF NOT EXISTS ingresos (
     idIngresos INT NOT NULL AUTO_INCREMENT,
     idPresupuesto INT NOT NULL,
     FechaDeRegistro DATE DEFAULT NULL,
     Monto DECIMAL(10,0) DEFAULT NULL,
-    TipoDeMonto ENUM('Efectivo','Tarjeta Debito','Tarjeta credito','Cheque','Billeteras virtuales') DEFAULT NULL,
+    TipoDeMonto ENUM(
+        'Efectivo',
+        'Tarjeta Debito',
+        'Tarjeta credito',
+        'Cheque',
+        'Billeteras virtuales',
+        'Salario',
+        'Bono',
+        'Freelance',
+        'Inversión',
+        'Otros'
+    ) DEFAULT NULL,
     Descripcion TEXT,
     TipoDeMontoDetalle VARCHAR(100) DEFAULT NULL,
     PRIMARY KEY (idIngresos),

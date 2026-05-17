@@ -45,13 +45,13 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/auth/login
 #### Obtener Perfil
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/auth/perfil \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Actualizar Perfil
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/auth/perfil \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "nombres": "Juan",
@@ -63,7 +63,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/auth/perfil
 #### Cambiar Contraseña
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/auth/cambiar-password \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "contraseñaActual": "12345678",
@@ -74,7 +74,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/auth/cambia
 #### Logout
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/auth/logout \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -84,7 +84,7 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/auth/logou
 #### Crear Presupuesto
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/presupuestos \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "Presupuesto Mensual",
@@ -100,19 +100,19 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/presupuest
 #### Listar Presupuestos del Usuario
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/presupuestos \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Obtener Presupuesto Específico
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/presupuestos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Actualizar Presupuesto
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/presupuestos/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "nombre": "Presupuesto Actualizado",
@@ -126,7 +126,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/presupuesto
 #### Eliminar Presupuesto
 ```bash
 curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/presupuestos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -135,14 +135,28 @@ curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/presupue
 
 #### Crear Ingreso
 ```bash
+
+#1 Tipo de monto dentro del ENUM(database)
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/presupuesto/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "tipo": "Salario",
-    "valor": 3000,
-    "descripcion": "Pago del trabajo",
-    "fecha": "2025-11-06"
+    "tipo": "Efectivo",
+    "valor": 7500,
+    "descripcion": "Pago de trabajo",
+    "fecha": "2025-01-15"
+  }'
+
+#2 Otro tipo de monto:
+curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/presupuesto/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tipo": "Otro",
+    "otroTipo": "Salario",
+    "valor": 2135000,
+    "descripcion": "Pago de trabajo",
+    "fecha": "2025-01-15"
   }'
 
 # Tipos disponibles: Salario, Bono, Freelance, Inversión, Otros
@@ -151,19 +165,19 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/p
 #### Listar Ingresos de un Presupuesto
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/presupuesto/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Obtener Ingreso Específico
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Actualizar Ingreso
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "tipo": "Bono",
@@ -175,13 +189,13 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/1 
 #### Obtener Total de Ingresos
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/presupuesto/1/total \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Eliminar Ingreso
 ```bash
 curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/ingresos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -191,7 +205,7 @@ curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/ingresos
 #### Crear Gasto
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/gastos/presupuesto/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "tipo": "Supermercado",
@@ -206,19 +220,19 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/gastos/pre
 #### Listar Gastos de un Presupuesto
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/gastos/presupuesto/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Obtener Gasto Específico
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/gastos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 #### Actualizar Gasto
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/gastos/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "tipo": "Restaurante",
@@ -230,7 +244,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/gastos/1 \
 #### Eliminar Gasto
 ```bash
 curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/gastos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -253,6 +267,12 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/password/r
     "password": "nueva-contraseña"
   }'
 ```
+
+
+
+
+
+
 
 ---
 
@@ -565,7 +585,7 @@ const data = await response.json();
 ###Crear Crédito
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/creditos \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "idPresupuesto": 1,
@@ -579,7 +599,7 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/creditos \
 ### Registrar Pago de Crédito
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/creditos/pago \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "TipoDePago": "Transferencia",
@@ -592,31 +612,31 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/creditos/p
 ### Obtener Resumen de Mis Créditos
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/creditos/mi-resumen \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Listar Todos Mis Créditos
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/creditos/mis-creditos \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Obtener Créditos por Presupuesto
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/creditos/presupuesto/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Obtener Crédito Específico
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/creditos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Actualizar Crédito
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/creditos/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "RangoInicial": "2024-03-01",
@@ -629,7 +649,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/creditos/1 
 ### Eliminar Crédito
 ```bash
 curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/creditos/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ## ENDPOINTS DE TIPOCREDITO
@@ -641,7 +661,7 @@ curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/tipos-credi
 ### Obtener Tipo de Crédito Específico
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/tipos-credito/3 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Crear Nuevo Tipo de Crédito (Solo Admin)
@@ -675,7 +695,7 @@ curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/tipos-cr
 ### Crear Meta
 ```bash
 curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/metas \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "nombreMeta": "Viaje a Cancún",
@@ -691,19 +711,19 @@ curl -X POST https://bossbudgetapi-production-539b.up.railway.app/api/metas \
 ### Listar Metas del Usuario
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/metas \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Obtener Meta Específica
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/metas/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Actualizar Meta
 ```bash
 curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/metas/1 \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "nombreMeta": "Viaje a Cancún - Actualizado",
@@ -715,7 +735,7 @@ curl -X PUT https://bossbudgetapi-production-539b.up.railway.app/api/metas/1 \
 ### Actualizar Progreso de Meta
 ```bash
 curl -X PATCH https://bossbudgetapi-production-539b.up.railway.app/api/metas/1/progreso \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "montoActual": 8000
@@ -725,13 +745,13 @@ curl -X PATCH https://bossbudgetapi-production-539b.up.railway.app/api/metas/1/p
 ### Obtener Estadísticas de Metas
 ```bash
 curl -X GET https://bossbudgetapi-production-539b.up.railway.app/api/metas/estadisticas \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Eliminar Meta
 ```bash
 curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/metas/1 \
-  -H "Authorization: Bearer <token>"
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -747,7 +767,7 @@ curl -X DELETE https://bossbudgetapi-production-539b.up.railway.app/api/metas/1 
 - Agrupadas todas las categorías disponibles
 
 ⚠️ **Requerimientos:**
-- Reemplaza `<token>` con el JWT obtenido al hacer login
+- Reemplaza `$TOKEN` con el JWT obtenido al hacer login
 - Todos los campos fecha usan formato `YYYY-MM-DD`
 - El header `Authorization` es obligatorio para rutas protegidas
 - Content-Type debe ser `application/json` para peticiones con body

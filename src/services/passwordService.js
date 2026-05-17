@@ -1,16 +1,8 @@
 const usuarioRepository = require('../repositories/usuarioRepository');
 const passwordResetTokenRepository = require('../repositories/passwordResetTokenRepository');
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-
-const transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-});
+const emailService = require('./emailService'); // ← CAMBIO: ya no usa nodemailer
 
 class PasswordService {
     
@@ -28,40 +20,8 @@ class PasswordService {
         // Enlace directo al frontend con el token
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         
-        try {
-            await transporter.sendMail({
-                to: correo,
-                subject: 'Recuperación de contraseña - BossBudget',
-                html: `
-                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                        <h2 style="color: #2563eb; text-align: center;">Recuperación de Contraseña</h2>
-                        
-                        <p>Haz clic en el siguiente botón para restablecer tu contraseña:</p>
-                        
-                        <div style="text-align: center; margin: 25px 0;">
-                            <a href="${resetLink}" 
-                            style="background-color: #2563eb; color: white; padding: 12px 24px; 
-                                    text-decoration: none; border-radius: 6px; border: none; 
-                                    cursor: pointer; font-size: 16px; display: inline-block;">
-                                Restablecer Contraseña
-                            </a>
-                        </div>
-                        
-                        <p><strong>El enlace expira en 15 minutos.</strong></p>
-                        
-                        <div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin-top: 20px;">
-                            <p style="margin: 0; font-size: 14px; color: #6b7280;">
-                                <strong>Nota de seguridad:</strong> Este enlace caduca en 15 minutos 
-                                y es de un solo uso. Si no lo solicitaste, ignora este mensaje.
-                            </p>
-                        </div>
-                    </div>
-                `,
-            });
-        } catch (error) {
-            console.error('Error enviando email:', error);
-            throw new Error('Error al enviar el correo de recuperación');
-        }
+        // ✅ CAMBIO: usar Resend en lugar de Nodemailer
+        await emailService.sendPasswordResetEmail(correo, resetLink);
 
         return { 
             message: '¡Revisa tu correo para el enlace de recuperación!'
@@ -102,7 +62,6 @@ class PasswordService {
         const tokenData = await passwordResetTokenRepository.findValidToken(token);
         return {
             valido: !!tokenData,
-            // Si necesitas el correo para algo en el frontend, puedes retornarlo:
             correo: tokenData?.correo
         };
     }
