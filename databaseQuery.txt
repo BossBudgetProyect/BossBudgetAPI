@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS presupuesto (
     KEY NombreUsuario (NombreUsuario),
     CONSTRAINT presupuesto_ibfk_2 FOREIGN KEY (idTipoPresupuesto) REFERENCES tipopresupuesto (idTipoPresupuesto),
     CONSTRAINT presupuesto_ibfk_3 FOREIGN KEY (NombreUsuario) REFERENCES usuario (NombreUsuario)
-) ENGINE=InnoDB AUTO_INCREMENT=48 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
 -- TABLE: detallepresupuesto
@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS detallepresupuesto (
     PRIMARY KEY (idDetalle),
     KEY idPresupuesto (idPresupuesto),
     CONSTRAINT fk_detallepresupuesto_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
 -- TABLE: gastos
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS gastos (
     PRIMARY KEY (idGastos),
     KEY idPresupuesto (idPresupuesto),
     CONSTRAINT fk_gastos_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
 -- TABLE: ingresos
@@ -115,7 +115,7 @@ CREATE TABLE IF NOT EXISTS ingresos (
     PRIMARY KEY (idIngresos),
     KEY idPresupuesto (idPresupuesto),
     CONSTRAINT fk_ingresos_presupuesto FOREIGN KEY (idPresupuesto) REFERENCES presupuesto (idPresupuesto) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ===========================================
 -- TABLE: telefonos

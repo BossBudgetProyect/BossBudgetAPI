@@ -7,6 +7,19 @@ class PresupuestoController {
         try {
             const { nombre, valor, fecha_inicio, fecha_fin, categoria, otraCategoria } = req.body;
             
+            // ✅ VALIDACIÓN: Verificar si el usuario ya tiene un presupuesto
+            const presupuestosExistentes = await presupuestoService.obtenerPresupuestosPorUsuario(
+                req.user.nombreUsuario
+            );
+            
+            // Si ya existe al menos un presupuesto, rechazar la creación
+            if (presupuestosExistentes && presupuestosExistentes.length > 0) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'Ya tienes un presupuesto activo. Solo puedes tener un presupuesto por usuario. Usa el endpoint de actualización (PUT) para modificar el existente.'
+                });
+            }
+            
             // Determinar categoría final
             const categoriaFinal = categoria === 'Otros' && otraCategoria?.trim() !== '' 
                 ? otraCategoria.trim() 
@@ -69,7 +82,9 @@ class PresupuestoController {
     // Obtener todos los presupuestos del usuario
     async obtenerPresupuestosUsuario(req, res) {
         try {
-            const presupuestos = await presupuestoService.obtenerPresupuestosPorUsuario(req.user.nombreUsuario);
+            const presupuestos = await presupuestoService.obtenerPresupuestosPorUsuario(
+                req.user.nombreUsuario
+            );
             
             res.json({
                 success: true,
@@ -87,10 +102,28 @@ class PresupuestoController {
     async actualizarPresupuesto(req, res) {
         try {
             const { id } = req.params;
-            const { nombre, monto, fecha_inicio, fecha_fin } = req.body;
             
-            // En una implementación real, aquí actualizarías el detalle del presupuesto
-            // Por simplicidad, asumimos que se actualiza el primer detalle
+            // ✅ NUEVO: Verificar que el presupuesto existe antes de actualizar
+            const presupuestosUsuario = await presupuestoService.obtenerPresupuestosPorUsuario(
+                req.user.nombreUsuario
+            );
+            
+            if (!presupuestosUsuario || presupuestosUsuario.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'No tienes un presupuesto creado. Primero debes crear uno.'
+                });
+            }
+            
+            // Verificar que el ID del presupuesto pertenece al usuario
+            const presupuestoValido = presupuestosUsuario.find(p => p.idPresupuesto == id);
+            if (!presupuestoValido) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Presupuesto no encontrado o no te pertenece'
+                });
+            }
+            
             const resultado = await presupuestoService.actualizarPresupuesto(
                 id,
                 req.user.nombreUsuario,
@@ -114,6 +147,27 @@ class PresupuestoController {
     async eliminarPresupuesto(req, res) {
         try {
             const { id } = req.params;
+            
+            // ✅ NUEVO: Verificar que el presupuesto existe antes de eliminar
+            const presupuestosUsuario = await presupuestoService.obtenerPresupuestosPorUsuario(
+                req.user.nombreUsuario
+            );
+            
+            if (!presupuestosUsuario || presupuestosUsuario.length === 0) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'No tienes un presupuesto para eliminar'
+                });
+            }
+            
+            // Verificar que el ID del presupuesto pertenece al usuario
+            const presupuestoValido = presupuestosUsuario.find(p => p.idPresupuesto == id);
+            if (!presupuestoValido) {
+                return res.status(404).json({
+                    success: false,
+                    error: 'Presupuesto no encontrado o no te pertenece'
+                });
+            }
             
             await presupuestoService.eliminarPresupuesto(id, req.user.nombreUsuario);
             
