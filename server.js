@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('🔑 BREVO_API_KEY cargada:', process.env.BREVO_API_KEY ? '✅ Sí' : '❌ No');
 
 const app = require('./src/app');
 const db = require('./src/config/database');
