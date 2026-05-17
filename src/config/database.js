@@ -9,7 +9,13 @@ function getDbType() {
         return process.env.DB_TYPE.toLowerCase();
     }
 
-    if (process.env.DB_HOST || process.env.DB_USER || process.env.DB_PASSWORD || process.env.DB_NAME) {
+    if (
+        process.env.MYSQL_HOST ||
+        process.env.MYSQL_USER ||
+        process.env.MYSQL_PASSWORD ||
+        process.env.MYSQL_DATABASE ||
+        process.env.MYSQL_URL
+    ) {
         return 'mysql';
     }
 
@@ -84,11 +90,20 @@ function createSqliteWrapper(db) {
 }
 
 function createMysqlPool() {
+    const host = process.env.MYSQL_HOST;
+    const port = parseInt(process.env.MYSQL_PORT || '3306', 10);
+    const user = process.env.MYSQL_USER;
+    const password = process.env.MYSQL_PASSWORD;
+    const database = process.env.MYSQL_DATABASE;
+
+    console.log(`🔌 Conectando a MySQL en ${host}:${port} — base de datos: ${database}`);
+
     const pool = mysql.createPool({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'root',
-        password: process.env.DB_PASSWORD || 'password',
-        database: process.env.DB_NAME || 'bossbudget',
+        host,
+        port,
+        user,
+        password,
+        database,
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
