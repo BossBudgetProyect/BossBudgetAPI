@@ -1,13 +1,13 @@
+// controllers/tipoCreditoController.js
 const tipoCreditoService = require('../services/tipoCreditoService');
 
 class TipoCreditoController {
-    constructor(tipoCreditoService) {
-        this.tipoCreditoService = tipoCreditoService;
-    }
+    // ❌ Elimina el constructor
+    // constructor(tipoCreditoService) { ... }
 
     async obtenerTodosTipos(req, res) {
         try {
-            const tipos = await this.tipoCreditoService.getAllTipos();
+            const tipos = await tipoCreditoService.getAllTipos();
             res.json({
                 success: true,
                 data: tipos
@@ -22,7 +22,7 @@ class TipoCreditoController {
 
     async obtenerTipoPorId(req, res) {
         try {
-            const tipo = await this.tipoCreditoService.getTipoById(req.params.id);
+            const tipo = await tipoCreditoService.getTipoById(req.params.id);
             res.json({
                 success: true,
                 data: tipo
@@ -37,7 +37,15 @@ class TipoCreditoController {
 
     async crearTipo(req, res) {
         try {
-            const tipo = await this.tipoCreditoService.createTipo(req.body);
+            // Verificar si es admin (opcional)
+            if (req.user && req.user.rol !== 'admi') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'No autorizado. Solo administradores pueden crear tipos de crédito'
+                });
+            }
+            
+            const tipo = await tipoCreditoService.createTipo(req.body);
             res.status(201).json({
                 success: true,
                 message: 'Tipo de crédito creado exitosamente',
@@ -53,7 +61,14 @@ class TipoCreditoController {
 
     async actualizarTipo(req, res) {
         try {
-            const tipo = await this.tipoCreditoService.updateTipo(req.params.id, req.body);
+            if (req.user && req.user.rol !== 'admi') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'No autorizado. Solo administradores pueden actualizar tipos de crédito'
+                });
+            }
+            
+            const tipo = await tipoCreditoService.updateTipo(req.params.id, req.body);
             res.json({
                 success: true,
                 message: 'Tipo de crédito actualizado exitosamente',
@@ -69,7 +84,14 @@ class TipoCreditoController {
 
     async eliminarTipo(req, res) {
         try {
-            await this.tipoCreditoService.deleteTipo(req.params.id);
+            if (req.user && req.user.rol !== 'admi') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'No autorizado. Solo administradores pueden eliminar tipos de crédito'
+                });
+            }
+            
+            await tipoCreditoService.deleteTipo(req.params.id);
             res.json({
                 success: true,
                 message: 'Tipo de crédito eliminado exitosamente'
@@ -83,4 +105,5 @@ class TipoCreditoController {
     }
 }
 
-module.exports = new TipoCreditoController(tipoCreditoService);
+// ✅ Exportar sin pasar parámetro
+module.exports = new TipoCreditoController();
