@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS creditos (
 -- TABLE: pagodecredito
 -- ===========================================
 CREATE TABLE IF NOT EXISTS pagodecredito (
-    idPagoDeCredito INT NOT NULL,
+    idPagoDeCredito INT NOT NULL AUTO_INCREMENT,
     TipoDePago VARCHAR(50) DEFAULT NULL,
     idCreditos INT NOT NULL,
     AccionRealizada VARCHAR(50) DEFAULT NULL,
