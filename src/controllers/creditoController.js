@@ -1,9 +1,6 @@
 const creditoService = require('../services/creditoService');
 
 class CreditoController {
-    constructor(creditoService) {
-        this.creditoService = creditoService;
-    }
 
     async crearCredito(req, res) {
         try {
