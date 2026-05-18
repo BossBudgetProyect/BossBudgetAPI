@@ -15,27 +15,37 @@ class CreditoService {
         this.pagoCreditoRepository = pagoCreditoRepository;
     }
 
-    async createCredito(creditoData) {
-        const credito = new Credito(creditoData);
-        credito.validate();
-        
-        // Verificar que el presupuesto existe
+    // ✅ NUEVO: Verificar que el presupuesto pertenece al usuario
+    async verificarPresupuestoUsuario(idPresupuesto, nombreUsuario) {
         const [presupuesto] = await db.execute(
-            'SELECT * FROM presupuesto WHERE idPresupuesto = ?', 
-            [credito.idPresupuesto]
+            'SELECT * FROM presupuesto WHERE idPresupuesto = ? AND NombreUsuario = ?',
+            [idPresupuesto, nombreUsuario]
         );
         
         if (presupuesto.length === 0) {
-            throw new Error('Presupuesto no encontrado');
+            throw new Error('Presupuesto no encontrado o no pertenece al usuario');
         }
+        
+        return presupuesto[0];
+    }
+
+    async createCredito(creditoData, nombreUsuario) { // ← Agregar nombreUsuario como parámetro
+        // Verificar que el presupuesto pertenece al usuario
+        await this.verificarPresupuestoUsuario(creditoData.idPresupuesto, nombreUsuario);
+        
+        const credito = new Credito(creditoData);
+        credito.validate();
         
         const id = await this.creditoRepository.create(credito.toDatabase());
         return this.creditoRepository.findById(id);
     }
 
-    async getCreditoById(id) {
+    async getCreditoById(id, nombreUsuario) {
         const credito = await this.creditoRepository.findById(id);
         if (!credito) throw new Error('Crédito no encontrado');
+        
+        // Verificar que el crédito pertenece al usuario a través del presupuesto
+        await this.verificarPresupuestoUsuario(credito.idPresupuesto, nombreUsuario);
         
         const pagos = await this.pagoCreditoRepository.findByCredito(id);
         credito.pagos = pagos;
@@ -45,7 +55,10 @@ class CreditoService {
         return credito;
     }
 
-    async getCreditosByPresupuesto(idPresupuesto) {
+    async getCreditosByPresupuesto(idPresupuesto, nombreUsuario) {
+        // Verificar que el presupuesto pertenece al usuario
+        await this.verificarPresupuestoUsuario(idPresupuesto, nombreUsuario);
+        
         const creditos = await this.creditoRepository.findByPresupuesto(idPresupuesto);
         
         for (const credito of creditos) {
@@ -71,9 +84,12 @@ class CreditoService {
         return creditos;
     }
 
-    async updateCredito(id, creditoData) {
+    async updateCredito(id, creditoData, nombreUsuario) {
+        // Obtener el crédito existente y verificar propiedad
         const creditoExistente = await this.creditoRepository.findById(id);
         if (!creditoExistente) throw new Error('Crédito no encontrado');
+        
+        await this.verificarPresupuestoUsuario(creditoExistente.idPresupuesto, nombreUsuario);
         
         const creditoActualizado = new Credito({ ...creditoExistente, ...creditoData });
         creditoActualizado.validate();
@@ -81,9 +97,12 @@ class CreditoService {
         return this.creditoRepository.update(id, creditoActualizado.toDatabase());
     }
 
-    async deleteCredito(id) {
+    async deleteCredito(id, nombreUsuario) {
+        // Obtener el crédito existente y verificar propiedad
         const credito = await this.creditoRepository.findById(id);
         if (!credito) throw new Error('Crédito no encontrado');
+        
+        await this.verificarPresupuestoUsuario(credito.idPresupuesto, nombreUsuario);
         
         const pagos = await this.pagoCreditoRepository.findByCredito(id);
         if (pagos.length > 0) {
@@ -93,9 +112,12 @@ class CreditoService {
         return this.creditoRepository.delete(id);
     }
 
-    async registrarPago(pagoData) {
+    async registrarPago(pagoData, nombreUsuario) {
+        // Verificar que el crédito pertenece al usuario
         const credito = await this.creditoRepository.findById(pagoData.idCreditos);
         if (!credito) throw new Error('Crédito no encontrado');
+        
+        await this.verificarPresupuestoUsuario(credito.idPresupuesto, nombreUsuario);
         
         const pago = new PagoCredito(pagoData);
         pago.validate();
@@ -119,6 +141,5 @@ class CreditoService {
     }
 }
 
-// ✅ EXPORTAR UNA SOLA INSTANCIA con los repositorios ya inyectados
 const creditoService = new CreditoService(repository, pagoRepository);
 module.exports = creditoService;

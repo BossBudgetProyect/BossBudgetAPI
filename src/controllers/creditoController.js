@@ -1,10 +1,14 @@
 // controllers/creditoController.js
-const creditoService = require('../services/creditoService'); // ← Importar el servicio
+const creditoService = require('../services/creditoService');
 
 class CreditoController {
     async crearCredito(req, res) {
         try {
-            const credito = await creditoService.createCredito(req.body);
+            // ✅ Pasar el nombreUsuario desde el token
+            const credito = await creditoService.createCredito(
+                req.body, 
+                req.user.nombreUsuario
+            );
             res.status(201).json({
                 success: true,
                 message: 'Crédito creado exitosamente',
@@ -20,7 +24,10 @@ class CreditoController {
 
     async obtenerCredito(req, res) {
         try {
-            const credito = await creditoService.getCreditoById(req.params.id);
+            const credito = await creditoService.getCreditoById(
+                req.params.id, 
+                req.user.nombreUsuario
+            );
             res.json({
                 success: true,
                 data: credito
@@ -35,7 +42,10 @@ class CreditoController {
 
     async obtenerCreditosPorPresupuesto(req, res) {
         try {
-            const creditos = await creditoService.getCreditosByPresupuesto(req.params.idPresupuesto);
+            const creditos = await creditoService.getCreditosByPresupuesto(
+                req.params.idPresupuesto, 
+                req.user.nombreUsuario
+            );
             res.json({
                 success: true,
                 data: creditos
@@ -80,7 +90,11 @@ class CreditoController {
 
     async actualizarCredito(req, res) {
         try {
-            const credito = await creditoService.updateCredito(req.params.id, req.body);
+            const credito = await creditoService.updateCredito(
+                req.params.id, 
+                req.body, 
+                req.user.nombreUsuario
+            );
             res.json({
                 success: true,
                 message: 'Crédito actualizado exitosamente',
@@ -96,7 +110,7 @@ class CreditoController {
 
     async eliminarCredito(req, res) {
         try {
-            await creditoService.deleteCredito(req.params.id);
+            await creditoService.deleteCredito(req.params.id, req.user.nombreUsuario);
             res.json({
                 success: true,
                 message: 'Crédito eliminado exitosamente'
@@ -111,7 +125,10 @@ class CreditoController {
 
     async registrarPago(req, res) {
         try {
-            const resultado = await creditoService.registrarPago(req.body);
+            const resultado = await creditoService.registrarPago(
+                req.body, 
+                req.user.nombreUsuario
+            );
             res.status(201).json({
                 success: true,
                 message: 'Pago registrado exitosamente',

@@ -190,7 +190,7 @@ CREATE TABLE IF NOT EXISTS tipodecredito (
 -- TABLE: creditos
 -- ===========================================
 CREATE TABLE IF NOT EXISTS creditos (
-    idCreditos INT NOT NULL,
+    idCreditos INT NOT NULL AUTO_INCREMENT,
     idPresupuesto INT NOT NULL,
     RangoInicial DATE DEFAULT NULL,
     RangoFinal DATE DEFAULT NULL,
