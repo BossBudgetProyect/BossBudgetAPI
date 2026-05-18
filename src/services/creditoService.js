@@ -1,9 +1,13 @@
 // services/creditoService.js
 const creditoRepository = require('../repositories/creditoRepository');
 const pagoCreditoRepository = require('../repositories/pagoCreditoRepository');
-const db = require('../config/database'); // ← Agrega esta línea
+const db = require('../config/database');
 const Credito = require('../models/creditoModel');
 const PagoCredito = require('../models/pagoCreditoModel');
+
+// Crear instancias de repositorios con la base de datos
+const repository = new creditoRepository(db, true);
+const pagoRepository = new pagoCreditoRepository(db, true);
 
 class CreditoService {
     constructor(creditoRepository, pagoCreditoRepository) {
@@ -15,7 +19,7 @@ class CreditoService {
         const credito = new Credito(creditoData);
         credito.validate();
         
-        // ✅ CORREGIDO: Usar db directamente en lugar de creditoRepository.db
+        // Verificar que el presupuesto existe
         const [presupuesto] = await db.execute(
             'SELECT * FROM presupuesto WHERE idPresupuesto = ?', 
             [credito.idPresupuesto]
@@ -115,4 +119,6 @@ class CreditoService {
     }
 }
 
-module.exports = new CreditoService(creditoRepository, pagoCreditoRepository);
+// ✅ EXPORTAR UNA SOLA INSTANCIA con los repositorios ya inyectados
+const creditoService = new CreditoService(repository, pagoRepository);
+module.exports = creditoService;
