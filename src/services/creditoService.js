@@ -1,5 +1,7 @@
+// services/creditoService.js
 const creditoRepository = require('../repositories/creditoRepository');
 const pagoCreditoRepository = require('../repositories/pagoCreditoRepository');
+const db = require('../config/database'); // ← Agrega esta línea
 const Credito = require('../models/creditoModel');
 const PagoCredito = require('../models/pagoCreditoModel');
 
@@ -13,13 +15,13 @@ class CreditoService {
         const credito = new Credito(creditoData);
         credito.validate();
         
-        // Verificar que el presupuesto existe
-        const presupuesto = await this.creditoRepository.db.execute(
+        // ✅ CORREGIDO: Usar db directamente en lugar de creditoRepository.db
+        const [presupuesto] = await db.execute(
             'SELECT * FROM presupuesto WHERE idPresupuesto = ?', 
             [credito.idPresupuesto]
         );
         
-        if (!presupuesto[0][0]) {
+        if (presupuesto.length === 0) {
             throw new Error('Presupuesto no encontrado');
         }
         
@@ -31,11 +33,10 @@ class CreditoService {
         const credito = await this.creditoRepository.findById(id);
         if (!credito) throw new Error('Crédito no encontrado');
         
-        // Cargar pagos relacionados
         const pagos = await this.pagoCreditoRepository.findByCredito(id);
         credito.pagos = pagos;
-        credito.montoPagado = pagos.reduce((sum, pago) => sum + (pago.Monto || 0), 0);
-        credito.saldoPendiente = credito.MontoTotal - credito.montoPagado;
+        credito.montoPagado = pagos.reduce((sum, pago) => sum + (parseFloat(pago.Monto) || 0), 0);
+        credito.saldoPendiente = parseFloat(credito.MontoTotal) - credito.montoPagado;
         
         return credito;
     }
@@ -46,8 +47,8 @@ class CreditoService {
         for (const credito of creditos) {
             const pagos = await this.pagoCreditoRepository.findByCredito(credito.idCreditos);
             credito.pagos = pagos;
-            credito.montoPagado = pagos.reduce((sum, pago) => sum + (pago.Monto || 0), 0);
-            credito.saldoPendiente = credito.MontoTotal - credito.montoPagado;
+            credito.montoPagado = pagos.reduce((sum, pago) => sum + (parseFloat(pago.Monto) || 0), 0);
+            credito.saldoPendiente = parseFloat(credito.MontoTotal) - credito.montoPagado;
         }
         
         return creditos;
@@ -59,8 +60,8 @@ class CreditoService {
         for (const credito of creditos) {
             const pagos = await this.pagoCreditoRepository.findByCredito(credito.idCreditos);
             credito.pagos = pagos;
-            credito.montoPagado = pagos.reduce((sum, pago) => sum + (pago.Monto || 0), 0);
-            credito.saldoPendiente = credito.MontoTotal - credito.montoPagado;
+            credito.montoPagado = pagos.reduce((sum, pago) => sum + (parseFloat(pago.Monto) || 0), 0);
+            credito.saldoPendiente = parseFloat(credito.MontoTotal) - credito.montoPagado;
         }
         
         return creditos;
@@ -80,7 +81,6 @@ class CreditoService {
         const credito = await this.creditoRepository.findById(id);
         if (!credito) throw new Error('Crédito no encontrado');
         
-        // Verificar si tiene pagos asociados
         const pagos = await this.pagoCreditoRepository.findByCredito(id);
         if (pagos.length > 0) {
             throw new Error('No se puede eliminar el crédito porque tiene pagos registrados');
@@ -100,12 +100,10 @@ class CreditoService {
         
         const id = await this.pagoCreditoRepository.create(pago.toDatabase());
         
-        // Actualizar estado del crédito si es necesario
         const pagosActuales = await this.pagoCreditoRepository.findByCredito(credito.idCreditos);
-        const totalPagado = pagosActuales.reduce((sum, p) => sum + (p.Monto || 0), 0);
+        const totalPagado = pagosActuales.reduce((sum, p) => sum + (parseFloat(p.Monto) || 0), 0);
         
-        if (totalPagado >= credito.MontoTotal) {
-            // Opcional: Marcar crédito como pagado (necesitarías agregar campo 'estado' a la tabla creditos)
+        if (totalPagado >= parseFloat(credito.MontoTotal)) {
             console.log(`Crédito ${credito.idCreditos} completamente pagado`);
         }
         
