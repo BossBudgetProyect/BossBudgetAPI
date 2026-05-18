@@ -126,4 +126,4 @@ class CreditoController {
     }
 }
 
-module.exports = new CreditoController(creditoService);
+module.exports = new CreditoController();
