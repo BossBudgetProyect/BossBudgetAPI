@@ -1,17 +1,11 @@
+// models/tipoCreditoModel.js
 class TipoCredito {
-    constructor(data) {
-        this.idTipoDeCredito = data.idTipoDeCredito;
-        this.TipoDeCredito = data.TipoDeCredito;
+    constructor(idTipoDeCredito, TipoDeCredito) {
+        this.idTipoDeCredito = idTipoDeCredito;
+        this.TipoDeCredito = TipoDeCredito;
     }
 
-    validate() {
-        if (!this.TipoDeCredito || this.TipoDeCredito.trim() === '') {
-            throw new Error('TipoDeCredito es requerido');
-        }
-        return true;
-    }
-
-    toDatabase() {
+    toJSON() {
         return {
             idTipoDeCredito: this.idTipoDeCredito,
             TipoDeCredito: this.TipoDeCredito
